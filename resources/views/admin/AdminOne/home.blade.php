@@ -7,7 +7,7 @@
                 <div class="container-fluid text-left">
                     <div class="row">
                         <div class="col-md-12 bg_con_dash">
-                            <div class="col-md-12 hd_page_main">DashboardR46</div>
+                            <div class="col-md-12 hd_page_main">Dashboard</div>
 
                         </div>
 					</div>
