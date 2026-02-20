@@ -307,6 +307,28 @@ class Controller extends BaseController
         }
     } 
 
+    public function get_op_championshipResult($request)
+    {
+    	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
+    		return redirect('logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
+    	}else{ 
+            date_default_timezone_set('Asia/Jakarta');
+            $url_api =  env('APP_API');
+            $admin_login = session('admin_login_renang');
+            $key_token = session('key_token_renang');
+            $load_app = $request->load;
+            $request['u'] = $admin_login;
+            $request['token'] = $key_token;
+
+            $results[] = app('App\Http\Controllers\ApiControllerResult')->listopchampionship($request);  
+            $results = collect($results)->toJson();
+            $results = json_decode($results,true);
+            $results = $results[0]['original'];
+
+            return $results;
+        }
+    } 
+
     // penyusunan lane
     public function centeredLaneOrder(int $laneCount): array
     {

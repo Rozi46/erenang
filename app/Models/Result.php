@@ -10,6 +10,7 @@ class Result extends Model
     protected $fillable = [
         'id',
         'code_data',
+        'code_heatline',
         'code_athlete',
         'code_event',
         'hasil',
@@ -22,6 +23,11 @@ class Result extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
+
+    public function heatLine()
+    {
+        return $this->belongsTo(HeatLine::class, 'code_heatline', 'code_data');
+    }
 
     public function atlet()
     {

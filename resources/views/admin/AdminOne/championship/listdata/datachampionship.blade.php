@@ -17,7 +17,7 @@
 								<div class="row">
 									<div class="col-xl-12 col_act_page_main text-left">
 										<button type="button" class="btn btn-default back" onclick="BackPage()"><i class="fa fa-chevron-left"></i> Kembali</button>
-										@if($level_user['newchampionship'] == 'Yes')<a load="true" href="/admin/newchampionship"><button type="button" class="btn btn-primary">Tambah Data</button></a>@endif
+										@if($level_user['newchampionship'] == 'Yes')<a load="true" href="/admin/newchampionship"><button type="button" class="btn btn-primary">Input Kejuaraan</button></a>@endif
 										
 										@if($level_user['exportchampionship'] == 'Yes')<button type="button" class="btn btn-info back" onclick="exportdata('championship')"><i class="fa fa-download"></i> Export Data</button>@endif
 									</div>

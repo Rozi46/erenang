@@ -9,15 +9,22 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+
     public function up(): void
     {
         Schema::create('db_results', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('athlete_id')->constrained('athletes')->onDelete('cascade');
-            $table->foreignUuid('event_id')->constrained('events')->onDelete('cascade');
-            $table->string('hasil')->nullable();
+
+            $table->string('code_data', 50)->index();
+            $table->string('code_heatline', 50)->nullable();
+            $table->string('code_athlete', 50)->nullable();
+            $table->string('code_event', 50)->nullable();
+
+            $table->string('hasil', 20)->nullable();   // misal: 00:59.32
+            $table->string('catatan', 10)->nullable(); // DNF, DSQ, NS
+
             $table->integer('ranking')->nullable();
-            $table->string('catatan')->nullable(); // DNF, DSQ, NS
+
             $table->timestamps();
         });
     }

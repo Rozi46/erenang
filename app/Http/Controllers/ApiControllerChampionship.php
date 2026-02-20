@@ -738,25 +738,49 @@ class ApiControllerChampionship extends Controller
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100));
             
-            $results['listdata'] = HeatLine::where(function($query) use ($request) {
-                    $query->whereRaw('code_data ILIKE ?', ["%{$request->keysearch}%"])
-                    ->orWhereRaw('code_heat ILIKE ?', ["%{$request->keysearch}%"])
-                    ->orWhereRaw('code_athlete ILIKE ?', ["%{$request->keysearch}%"])
-                    ->orWhereRaw("CAST(line_number AS TEXT) ILIKE ?", ["%{$request->keysearch}%"])                    
-                    ->orWhereRaw('best_time ILIKE ?', ["%{$request->keysearch}%"])
-                    ->orWhereRaw('hasil ILIKE ?', ["%{$request->keysearch}%"])
-                    ->orWhereRaw("CAST(ranking AS TEXT) ILIKE ?", ["%{$request->keysearch}%"]);
+            // $results['listdata'] = HeatLine::where(function($query) use ($request) {
+            //         $query->whereRaw('code_data ILIKE ?', ["%{$request->keysearch}%"])
+            //         ->orWhereRaw('code_heat ILIKE ?', ["%{$request->keysearch}%"])
+            //         ->orWhereRaw('code_athlete ILIKE ?', ["%{$request->keysearch}%"])
+            //         ->orWhereRaw("CAST(line_number AS TEXT) ILIKE ?", ["%{$request->keysearch}%"])                    
+            //         ->orWhereRaw('best_time ILIKE ?', ["%{$request->keysearch}%"])
+            //         ->orWhereRaw('hasil ILIKE ?', ["%{$request->keysearch}%"])
+            //         ->orWhereRaw("CAST(ranking AS TEXT) ILIKE ?", ["%{$request->keysearch}%"]);
+            //     })
+            //     ->orderBy('ranking', 'ASC')
+            //     ->paginate($vd ?? 20);
+
+            // foreach($results['listdata'] as $key => $data){
+            //     // $results['count_used'][$data->code_data] = Barang::where('kode_jenis', $data->code_data)->count();
+            //     $results['count_used'][$data->code_data] = 0;      
+            //     $results['detail_heat'][$data->code_data] = Heat::where('code_data', $data->code_heat)->first(); 
+            //     $results['detail_atlet'][$data->code_data] = Atlet::where('code_data', $data->code_athlete)->first(); 
+            // }
+                
+            $keysearch = $request->keysearch;
+
+            $results['listdata'] = HeatLine::with(['heat.event.championship', 'atlet'])
+                ->withCount(['heat as count_used'])
+                ->when($keysearch, function ($query) use ($keysearch) {
+                    $query->where(function ($q) use ($keysearch) {
+                        $q->where('code_data', 'ILIKE', "%{$keysearch}%")
+                        ->orWhere('code_heat', 'ILIKE', "%{$keysearch}%")
+                        ->orWhere('best_time', 'ILIKE', "%{$keysearch}%")
+                        ->orWhere('hasil', 'ILIKE', "%{$keysearch}%")
+                        ->orWhere('line_number', 'ILIKE', "%{$keysearch}%")
+                        ->orWhere('ranking', 'ILIKE', "%{$keysearch}%")
+                        ->orWhereHas('atlet', function ($qa) use ($keysearch) {
+                            $qa->where('nama', 'ILIKE', "%{$keysearch}%");
+                        })
+                        ->orWhereHas('heat.event', function ($qe) use ($keysearch) {
+                            $qe->where('code_event', 'ILIKE', "%{$keysearch}%");
+                        });
+
+                    });
                 })
                 ->orderBy('ranking', 'ASC')
                 ->paginate($vd ?? 20);
 
-            foreach($results['listdata'] as $key => $data){
-                // $results['count_used'][$data->code_data] = Barang::where('kode_jenis', $data->code_data)->count();
-                $results['count_used'][$data->code_data] = 0;      
-                $results['detail_heat'][$data->code_data] = Heat::where('code_data', $data->code_heat)->first(); 
-                $results['detail_atlet'][$data->code_data] = Atlet::where('code_data', $data->code_athlete)->first(); 
-            }
-                
             return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','count_all_data' => $results['listdata']->total(),'count_view_data' => $vd,'keysearch' => $request->keysearch,'results' => $results]);
         }
     }

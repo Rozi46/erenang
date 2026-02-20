@@ -1,5 +1,5 @@
 @extends('admin.AdminOne.layout.assets')
-@section('title', 'Line Dalam Seri')
+@section('title', 'Hasil Pertandingan')
 
 @section('content')
 
@@ -7,12 +7,16 @@
                 <div class="container-fluid text-left">
                     <div class="row">
                         <div class="col-md-12 bg_page_main hd" line="hd_action">
-                            <div class="col-md-12 hd_page_main">Line Dalam Seri</div>
+                            <div class="col-md-12 hd_page_main">Hasil Pertandingan</div>
 							<div class="col-md-12 bg_act_page_main">
 								<div class="row">
 									<div class="col-xl-12 col_act_page_main text-left">
 										<button type="button" class="btn btn-default back" onclick="BackPage()"><i class="fa fa-chevron-left"></i> Kembali</button>
-										@if($level_user['exportheatline'] == 'Yes')<button type="button" class="btn btn-info back" onclick="exportdata('heatline')"><i class="fa fa-download"></i> Export Data</button>@endif
+										@if($level_user['inputresult'] == 'Yes')<a load="true" href="/admin/inputresult"><button type="button" class="btn btn-primary">Input Hasil Pertandingan</button></a>@endif
+
+                                        @if($level_user['exportresult'] == 'Yes')<button type="button" class="btn btn-info back" onclick="exportdata('result')"><i class="fa fa-download"></i> Export Data</button>@endif
+
+										@if($level_user['exportresult'] == 'Yes')<button type="button" class="btn btn-success"><i class="fa fa-trophy"></i> Hitung Ranking & Poin</button>@endif
 									</div>
 								</div>
 							</div>
@@ -51,6 +55,9 @@
                                                     <?php 
                                                         $no++ ;
                                                     ?>
+
+                                                    {{ dd($view_data) }}
+
 													<script type="text/javascript">
 														$(document).ready(function(){
 															$('[btn="del_data_{{$view_data['code_data']}}"]').click(function(){

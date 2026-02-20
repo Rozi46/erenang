@@ -341,6 +341,330 @@ class SistemController extends Controller
         }
     }
 
+    // Hasil Pertandingan
+    public function listresult(Request $request)
+    {
+    	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
+    		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
+    	}else{ 
+            date_default_timezone_set('Asia/Jakarta');
+            $url_api =  env('APP_API');
+            $admin_login = session('admin_login_renang');
+            $key_token = session('key_token_renang');
+            $load_app = $request->load;
+            $request['u'] = $admin_login;
+            $request['token'] = $key_token;
+            $request['app'] = 'menuhasilpertandingan';
+            $request['url_active'] = 'listresult';
+            $viewpath = 'admin.AdminOne.result.listdata.dataresult';
+
+            $get_user = $this->get_user($request);           
+            if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
+            $request['data_company'] = $get_user['results']['data_company']; 
+
+            $res_user = $get_user['results'][0]['detailadmin'][0];
+            $res_level_user = $get_user['results'][0]['leveladmin'][0];
+            $nama_admin = substr($res_user['full_name'],0,15);
+            if(strlen($nama_admin) > 15){$nama_admin = $nama_admin."...";}
+            $request['nama_admin'] = $nama_admin;
+
+            $get_setting = $this->get_setting($request);
+            $manual_book =  $get_setting['results']['data_setting']['manual_book'];
+            $request['manual_book'] = $manual_book;
+
+            $list_akses = $this->get_akses($request);
+            $level_user = array();
+            for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
+            array_push($level_user, $access_rights);
+
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            $vd = intval($request->vd ?? 20);
+            $vd = max(1, min($vd, 100));
+            $request['vd'] = $vd;
+            
+            $results[] = app('App\Http\Controllers\ApiControllerResult')->listresult($request);  
+            $results = collect($results)->toJson();
+            $results = json_decode($results,true);
+            $results = $results[0]['original'];        
+
+            if($results['note'] == 'Tidak ada akses'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            return view($viewpath,['url_api' => $url_api,'app' => $request['app'],'url_active' => $request['url_active'],'request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results'],'count_vd' => $vd,'keysearch' => $request->keysearch,'results' => $results['results']['listdata'],'listdata' => $results['results']]);
+        }
+    }
+
+    public function getopeventresult(Request $request)
+    {
+    	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
+    		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
+    	}else{ 
+
+            date_default_timezone_set('Asia/Jakarta');
+            $url_api =  env('APP_API');
+            $admin_login = session('admin_login_renang');
+            $key_token = session('key_token_renang');
+            $load_app = $request->load;
+            $request['u'] = $admin_login;
+            $request['token'] = $key_token;
+            $request['app'] = 'menuhasilpertandingan';
+            $request['url_active'] = 'listresult';
+
+            $get_user = $this->get_user($request);           
+            if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
+            $request['data_company'] = $get_user['results']['data_company'];
+
+            $res_user = $get_user['results'][0]['detailadmin'][0];
+            $res_level_user = $get_user['results'][0]['leveladmin'][0];
+            $nama_admin = substr($res_user['full_name'],0,15);
+            if(strlen($nama_admin) > 15){$nama_admin = $nama_admin."...";}
+            $request['nama_admin'] = $nama_admin;
+
+            $get_setting = $this->get_setting($request);
+            $manual_book =  $get_setting['results']['data_setting']['manual_book'];
+            $request['manual_book'] = $manual_book;
+
+            $list_akses = $this->get_akses($request);
+            $level_user = array();
+            for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
+            array_push($level_user, $access_rights);
+
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}    
+
+            $results[] = app('App\Http\Controllers\ApiControllerResult')->listopeventresult($request);  
+            $results = collect($results)->toJson();
+            $results = json_decode($results,true);
+            $results = $results[0]['original'];
+        
+            return $results;
+        }
+    }
+
+    public function inputresult(Request $request)
+    {
+    	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
+    		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
+    	}else{ 
+            date_default_timezone_set('Asia/Jakarta');
+            $url_api =  env('APP_API');
+            $admin_login = session('admin_login_renang');
+            $key_token = session('key_token_renang');
+            $load_app = $request->load;
+            $request['u'] = $admin_login;
+            $request['token'] = $key_token;
+            $request['app'] = 'menuhasilpertandingan';
+            $request['url_active'] = 'listresult';
+            $viewpath = 'admin.AdminOne.result.newdata.dataresult';
+
+            $get_user = $this->get_user($request);           
+            if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
+            $request['data_company'] = $get_user['results']['data_company'];
+
+            $res_user = $get_user['results'][0]['detailadmin'][0];
+            $res_level_user = $get_user['results'][0]['leveladmin'][0];
+            $nama_admin = substr($res_user['full_name'],0,15);
+            if(strlen($nama_admin) > 15){$nama_admin = $nama_admin."...";}
+            $request['nama_admin'] = $nama_admin;
+
+            $get_setting = $this->get_setting($request);
+            $manual_book =  $get_setting['results']['data_setting']['manual_book'];
+            $request['manual_book'] = $manual_book;
+
+            $list_akses = $this->get_akses($request);
+            $level_user = array();
+            for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
+            array_push($level_user, $access_rights);
+
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
+                       
+            $list_championship = $this->get_op_championshipResult($request);
+
+            return view($viewpath,['url_api' => $url_api,'app' => $request['app'],'url_active' => $request['url_active'],'request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results'],'list_championship' => $list_championship['results']]);
+        }
+    }
+
+    public function listdataevent(Request $request)
+    {
+    	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
+    		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
+    	}else{ 
+            date_default_timezone_set('Asia/Jakarta');
+            $url_api =  env('APP_API');
+            $admin_login = session('admin_login_renang');
+            $key_token = session('key_token_renang');
+            $load_app = $request->load;
+            $request['u'] = $admin_login;
+            $request['token'] = $key_token;
+            $request['app'] = 'menuhasilpertandingan';
+            $request['url_active'] = 'listresult';
+
+            $get_user = $this->get_user($request);           
+            if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
+            $request['data_company'] = $get_user['results']['data_company']; 
+
+            $res_user = $get_user['results'][0]['detailadmin'][0];
+            $res_level_user = $get_user['results'][0]['leveladmin'][0];
+            $nama_admin = substr($res_user['full_name'],0,15);
+            if(strlen($nama_admin) > 15){$nama_admin = $nama_admin."...";}
+            $request['nama_admin'] = $nama_admin;
+
+            $get_setting = $this->get_setting($request);
+            $manual_book =  $get_setting['results']['data_setting']['manual_book'];
+            $request['manual_book'] = $manual_book;
+
+            $list_akses = $this->get_akses($request);
+            $level_user = array();
+            for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
+            array_push($level_user, $access_rights);
+
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            $vd = intval($request->vd ?? 20);
+            $vd = max(1, min($vd, 100));
+            $request['vd'] = $vd;
+
+            if($request->status_data == 'Yes'){      
+                $viewpath = 'admin.AdminOne.result.inputdata.listdataresult';      
+                $results[] = app('App\Http\Controllers\ApiControllerResult')->viewresult($request);  
+                $results = collect($results)->toJson();
+                $results = json_decode($results,true);
+                $results = $results[0]['original'];        
+
+                if($results['note'] == 'Tidak ada akses'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+                return view($viewpath,['url_api' => $url_api,'app' => $request['app'],'url_active' => $request['url_active'],'request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results'],'count_vd' => $vd,'keysearch' => $request->keysearch,'results' => $results['results']['listdata'],'listdata' => $results['results']]);
+            }else{    
+                $viewpath = 'admin.AdminOne.result.inputdata.listdataevent';        
+                $results[] = app('App\Http\Controllers\ApiControllerResult')->listdataevent($request);  
+                $results = collect($results)->toJson();
+                $results = json_decode($results,true);
+                $results = $results[0]['original'];        
+
+                if($results['note'] == 'Tidak ada akses'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+                return view($viewpath,['url_api' => $url_api,'app' => $request['app'],'url_active' => $request['url_active'],'request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results'],'count_vd' => $vd,'keysearch' => $request->keysearch,'results' => $results['results']['listdata'],'listdata' => $results['results']]);
+            }
+        }
+    }
+
+    public function viewresult(Request $request)
+    {
+    	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
+    		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
+    	}else{  
+            date_default_timezone_set('Asia/Jakarta');
+            $url_api =  env('APP_API');
+            $admin_login = session('admin_login_renang');
+            $key_token = session('key_token_renang');
+            $load_app = $request->load;
+            $request['u'] = $admin_login;
+            $request['token'] = $key_token;
+            $request['app'] = 'menuhasilpertandingan';
+            $request['url_active'] = 'listresult';
+            $viewpath = 'admin.AdminOne.result.editdata.dataresult';
+
+            $get_user = $this->get_user($request);           
+            if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
+            $request['data_company'] = $get_user['results']['data_company']; 
+            
+            $res_user = $get_user['results'][0]['detailadmin'][0];
+            $res_level_user = $get_user['results'][0]['leveladmin'][0];
+            $nama_admin = substr($res_user['full_name'],0,15);
+            if(strlen($nama_admin) > 15){$nama_admin = $nama_admin."...";}
+            $request['nama_admin'] = $nama_admin;
+
+            $get_setting = $this->get_setting($request);
+            $manual_book =  $get_setting['results']['data_setting']['manual_book'];
+            $request['manual_book'] = $manual_book;
+
+            $list_akses = $this->get_akses($request);
+            $level_user = array();
+            for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
+            array_push($level_user, $access_rights);
+
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            $request['code_data'] = $request['d'];
+            $request['code_championship'] = $request['code_championship'];
+            $request['code_event'] = $request['code_event'];
+            
+            $get_data[] = app('App\Http\Controllers\ApiControllerResult')->viewresult($request);  
+            $get_data = collect($get_data)->toJson();
+            $get_data = json_decode($get_data,true);
+            $get_data = $get_data[0]['original'];
+
+            if($get_data['note'] == 'Data tidak ditemukan'){return redirect('/admin/dash')->with('error','Data tidak ditemukan');}            
+            
+            $code_data = $request->get('code_data');
+            $code_championship = $request['code_championship'];
+            $code_event = $request['code_event'];
+
+           return view($viewpath,['url_api' => $url_api,'app' => $request['app'],'url_active' => $request['url_active'],'request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results'],'results' => $get_data,'code_data' => $code_data,'code_championship' => $code_championship,'code_event' => $code_event]);
+        }
+    }
+    
+    public function listdataresult(Request $request)
+    {
+    	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
+    		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
+    	}else{ 
+            date_default_timezone_set('Asia/Jakarta');
+            $url_api =  env('APP_API');
+            $admin_login = session('admin_login_renang');
+            $key_token = session('key_token_renang');
+            $load_app = $request->load;
+            $request['u'] = $admin_login;
+            $request['token'] = $key_token;
+            $request['app'] = 'menuhasilpertandingan';
+            $request['url_active'] = 'listresult';
+
+            $get_user = $this->get_user($request);           
+            if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
+            $request['data_company'] = $get_user['results']['data_company']; 
+
+            $res_user = $get_user['results'][0]['detailadmin'][0];
+            $res_level_user = $get_user['results'][0]['leveladmin'][0];
+            $nama_admin = substr($res_user['full_name'],0,15);
+            if(strlen($nama_admin) > 15){$nama_admin = $nama_admin."...";}
+            $request['nama_admin'] = $nama_admin;
+
+            $get_setting = $this->get_setting($request);
+            $manual_book =  $get_setting['results']['data_setting']['manual_book'];
+            $request['manual_book'] = $manual_book;
+
+            $list_akses = $this->get_akses($request);
+            $level_user = array();
+            for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
+            array_push($level_user, $access_rights);
+
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($request->status_data == 'Yes'){      
+                $viewpath = 'admin.AdminOne.result.inputdata.listinputdataresult';      
+                $results[] = app('App\Http\Controllers\ApiControllerResult')->viewresult($request);  
+                $results = collect($results)->toJson();
+                $results = json_decode($results,true);
+                $results = $results[0]['original'];        
+
+                // dd($results);
+
+                if($results['note'] == 'Tidak ada akses'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+                return view($viewpath,['url_api' => $url_api,'app' => $request['app'],'url_active' => $request['url_active'],'request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results'],'results' => $results['results']['result'],'listdata' => $results['results']]);
+            }else{    
+                $viewpath = 'admin.AdminOne.result.inputdata.listdataevent';        
+                $results[] = app('App\Http\Controllers\ApiControllerResult')->listdataevent($request);  
+                $results = collect($results)->toJson();
+                $results = json_decode($results,true);
+                $results = $results[0]['original'];        
+
+                if($results['note'] == 'Tidak ada akses'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+                return view($viewpath,['url_api' => $url_api,'app' => $request['app'],'url_active' => $request['url_active'],'request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results'],'results' => $results['results']['listdata'],'listdata' => $results['results']]);
+            }
+        }
+    }
+
     // Pendafataram
     public function menuregister(Request $request)
     {

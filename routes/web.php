@@ -33,6 +33,15 @@ Route::get('/admin/dash',[\App\Http\Controllers\SistemController::class, 'dash']
 	Route::get('/admin/editchampionship',[\App\Http\Controllers\SistemController::class, 'editchampionship']);
 	Route::post('/admin/editchampionship',[\App\Http\Controllers\ActionController::class, 'editchampionship']);
 	Route::get('/admin/deletechampionship',[\App\Http\Controllers\ActionController::class, 'deletechampionship']);
+	
+	// Data Hasil Pertandingan
+	Route::get('/admin/listresult',[\App\Http\Controllers\SistemController::class, 'listresult']);
+	Route::get('/admin/inputresult',[\App\Http\Controllers\SistemController::class, 'inputresult']);
+	Route::get('/admin/geteventresult',[\App\Http\Controllers\SistemController::class, 'getopeventresult']);
+	Route::get('/admin/listdataevent',[\App\Http\Controllers\SistemController::class, 'listdataevent']);
+	Route::post('/admin/saveresult',[\App\Http\Controllers\ActionController::class, 'saveresult']);
+	Route::get('/admin/viewresult',[\App\Http\Controllers\SistemController::class, 'viewresult']);
+	Route::get('/admin/listdataresult',[\App\Http\Controllers\SistemController::class, 'listdataresult']);
 
 	// Data Pendafataran
 	Route::get('/admin/menuregister',[\App\Http\Controllers\SistemController::class, 'menuregister']);
@@ -44,27 +53,6 @@ Route::get('/admin/dash',[\App\Http\Controllers\SistemController::class, 'dash']
 	Route::post('/admin/editregister',[\App\Http\Controllers\ActionController::class, 'editregister']);
 	Route::post('/admin/verifiedregister',[\App\Http\Controllers\ActionController::class, 'verifiedregister']);
 	Route::post('/admin/rejectedregister',[\App\Http\Controllers\ActionController::class, 'rejectedregister']);
-
-	// Data Penjualan Barang
-	Route::get('/admin/getcodepenjualan',[\App\Http\Controllers\ActionController::class, 'getcodepenjualan']);
-	Route::get('/admin/menupenjualanbarang',[\App\Http\Controllers\SistemController::class, 'menupenjualanbarang']);
-	Route::post('/admin/saveprodpenjualan',[\App\Http\Controllers\ActionController::class, 'saveprodpenjualan']);
-	Route::get('/admin/viewpenjualan',[\App\Http\Controllers\SistemController::class, 'viewpenjualan']);
-	Route::get('/admin/listprodpenjualan',[\App\Http\Controllers\SistemController::class, 'listprodpenjualan']);
-	Route::get('/admin/summarypenjualan',[\App\Http\Controllers\SistemController::class, 'summarypenjualan']);
-	Route::get('/admin/deleteprodpenjualan',[\App\Http\Controllers\ActionController::class, 'deleteprodpenjualan']);
-	Route::get('/admin/deletepenjualan',[\App\Http\Controllers\ActionController::class, 'deletepenjualan']);
-	Route::post('/admin/upppnpenjualann',[\App\Http\Controllers\ActionController::class, 'upppnpenjualan']);
-	Route::post('/admin/uphargapenjualan',[\App\Http\Controllers\ActionController::class, 'uphargapenjualan']);
-	Route::post('/admin/upqtypenjualan',[\App\Http\Controllers\ActionController::class, 'upqtypenjualan']);
-	Route::post('/admin/updiscpenjualan',[\App\Http\Controllers\ActionController::class, 'updiscpenjualan']);
-	Route::post('/admin/updiscpenjualan2',[\App\Http\Controllers\ActionController::class, 'updiscpenjualan2']);
-	Route::post('/admin/upsummarypenjualan',[\App\Http\Controllers\ActionController::class, 'upsummarypenjualan']);
-	Route::get('/admin/listsatuanhargapenjualan',[\App\Http\Controllers\ActionController::class, 'listsatuanhargapenjualan']);
-	Route::get('/admin/updatepenjualan',[\App\Http\Controllers\ActionController::class, 'updatepenjualan']);
-	Route::get('/admin/historypenjualanbarang',[\App\Http\Controllers\SistemController::class, 'historypenjualanbarang']);
-	Route::get('/admin/exportpenjualanbarang',[\App\Http\Controllers\SistemController::class, 'exportpenjualanbarang']);
-	Route::get('/admin/printsalesorder',[\App\Http\Controllers\SistemController::class, 'printsalesorder']);
 
 	// Event
 	Route::get('/admin/listevent',[\App\Http\Controllers\SistemController::class, 'listevent']);

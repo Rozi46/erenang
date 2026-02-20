@@ -33,4 +33,9 @@ class HeatLine extends Model
     {
         return $this->belongsTo(Atlet::class, 'code_athlete', 'code_data');
     }
+    
+    public function result()
+    {
+        return $this->hasMany(Result::class, 'code_data', 'code_data');
+    }
 }
