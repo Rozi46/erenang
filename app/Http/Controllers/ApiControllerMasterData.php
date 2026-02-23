@@ -80,21 +80,6 @@ class ApiControllerMasterData extends Controller
 
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100));
-            
-            // $results['listdata'] = Atlet::where(function($query) use ($request) {
-            //         $query->whereRaw('code_data ILIKE ?', ["%{$request->keysearch}%"])
-            //         ->orWhereRaw('nis ILIKE ?', ["%{$request->keysearch}%"])
-            //         ->orWhereRaw('nama ILIKE ?', ["%{$request->keysearch}%"])
-            //         ->orWhereRaw('tempat_lahir ILIKE ?', ["%{$request->keysearch}%"]);
-            //     })
-            //     ->orderBy('nama', 'ASC')
-            //     ->paginate($vd ?? 20);
-
-            // foreach($results['listdata'] as $key => $data){
-            //     // $results['count_used'][$data->code_data] = Barang::where('kode_jenis', $data->code_data)->count();
-            //     $results['count_used'][$data->code_data] = 0;                
-            //     $results['detail_club'][$data->code_data] = Club::where('code_data', $data->code_club)->first();
-            // }
 
             $results['listdata'] = Atlet::with([
                     'club:id,code_data,nama_club'
@@ -110,7 +95,6 @@ class ApiControllerMasterData extends Controller
                 })
                 ->orderBy('nama', 'ASC')
                 ->paginate($vd ?? 20);
-
                 
             return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','count_all_data' => $results['listdata']->total(),'count_view_data' => $vd,'keysearch' => $request->keysearch,'results' => $results]);
         }
@@ -421,19 +405,6 @@ class ApiControllerMasterData extends Controller
 
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100));
-            
-            // $results['listdata'] = Club::where(function($query) use ($request) {
-            //         $query->whereRaw('code_data ILIKE ?', ["%{$request->keysearch}%"])
-            //         ->orWhereRaw('nama_club ILIKE ?', ["%{$request->keysearch}%"])
-            //         ->orWhereRaw('kota_asal ILIKE ?', ["%{$request->keysearch}%"])
-            //         ->orWhereRaw('kontak ILIKE ?', ["%{$request->keysearch}%"]);
-            //     })
-            //     ->orderBy('nama_club', 'ASC')
-            //     ->paginate($vd ?? 20);
-
-            // foreach($results['listdata'] as $key => $data){
-            //     $results['count_used'][$data->code_data] = Atlet::where('code_club', $data->code_data)->count();
-            // }
 
             $results['listdata'] = Club::withCount('atlet')
                 ->when($request->keysearch, function ($query) use ($request) {
@@ -713,18 +684,15 @@ class ApiControllerMasterData extends Controller
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100)); // nilai minimal 1, maksimal 100
             
-            $results['listdata'] = Kategori::where(function($query) use ($request) {
+            $results['listdata'] = Kategori::with(['event'])
+                ->withCount(['event as count_used'])
+                ->where(function($query) use ($request) {
                     $query->whereRaw('code_data ILIKE ?', ["%{$request->keysearch}%"])
                     ->orWhereRaw('nama_gaya ILIKE ?', ["%{$request->keysearch}%"])
                     ->orWhereRaw('istilah ILIKE ?', ["%{$request->keysearch}%"]);
                 })
                 ->orderBy('nama_gaya', 'ASC')
                 ->paginate($vd ?? 20);
-
-            foreach($results['listdata'] as $key => $data){
-                // $results['count_used'][$data->code_data] = Barang::where('kode_jenis', $data->code_data)->count();
-                $results['count_used'][$data->code_data] = 0;
-            }
                 
             return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','count_all_data' => $results['listdata']->total(),'count_view_data' => $vd,'keysearch' => $request->keysearch,'results' => $results]);
         }
@@ -815,11 +783,9 @@ class ApiControllerMasterData extends Controller
                 return response()->json(['status_message' => 'error','note' => 'Tidak ada akses','results' => $object]);
             }
 
-            $getdata['kategori'] = Kategori::where('code_data', $request->code_data)->first();
-            if($getdata['kategori']){ 
-                // $count_used = Barang::where('kode_jenis', $getdata['kategori']->code_data)->count();   
-                $count_used = 0;            
-                return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','results' => $getdata,'count_used' => $count_used]);
+            $getdata['kategori'] = Kategori::with(['event'])->withCount(['event as count_used'])->where('code_data', $request->code_data)->first();
+            if($getdata['kategori']){          
+                return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','results' => $getdata,'count_used' => $getdata['kategori']->count_used]);
             }else{
                 return response()->json(['status_message' => 'error','note' => 'Data tidak ditemukan','results' => $object]);
             }
@@ -970,7 +936,9 @@ class ApiControllerMasterData extends Controller
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100));
             
-            $results['listdata'] = KelompokUmur::where(function($query) use ($request) {
+            $results['listdata'] = KelompokUmur::with(['event'])
+                ->withCount(['event as count_used'])
+                ->where(function($query) use ($request) {
                     $query->whereRaw('code_data ILIKE ?', ["%{$request->keysearch}%"])
                     ->orWhereRaw('code_kelompok ILIKE ?', ["%{$request->keysearch}%"])
                     ->orWhereRaw('nama_kelompok ILIKE ?', ["%{$request->keysearch}%"])
@@ -979,10 +947,6 @@ class ApiControllerMasterData extends Controller
                 })
                 ->orderBy('created_at', 'DESC')
                 ->paginate($vd ?? 20);
-
-            foreach($results['listdata'] as $key => $data){
-                $results['count_used'][$data->code_data] = Event::where('code_kategori', $data->code_data)->count();
-            }
                 
             return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','count_all_data' => $results['listdata']->total(),'count_view_data' => $vd,'keysearch' => $request->keysearch,'results' => $results]);
         }
@@ -1078,10 +1042,9 @@ class ApiControllerMasterData extends Controller
                 return response()->json(['status_message' => 'error','note' => 'Tidak ada akses','results' => $object]);
             }
 
-            $getdata['ku'] = KelompokUmur::where('code_data', $request->code_data)->first();
-            if($getdata['ku']){ 
-                $count_used = Event::where('code_kategori', $getdata['ku']->code_data)->count();          
-                return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','results' => $getdata,'count_used' => $count_used]);
+            $getdata['ku'] = KelompokUmur::with(['event'])->withCount(['event as count_used'])->where('code_data', $request->code_data)->first();
+            if($getdata['ku']){         
+                return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','results' => $getdata,'count_used' => $getdata['ku']->count_used]);
             }else{
                 return response()->json(['status_message' => 'error','note' => 'Data tidak ditemukan','results' => $object]);
             }

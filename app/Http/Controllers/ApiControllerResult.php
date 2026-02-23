@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 require '../vendor/autoload.php';
 
 use App\Http\Controllers\Controller;
-use App\Models\{Setting, Company, User, LevelAdmin, ListAkses, Activity, Result, Championship, HeatLine, Event};
+use App\Models\{Setting, Company, User, LevelAdmin, ListAkses, Activity, Result, Championship, HeatLine, Heat, Event};
 use Illuminate\Http\{Request, UploadedFile, Response};
 use Illuminate\Support\Facades\{Hash, Validator, File, Http, Route, Session, Auth, DB, Lang};
 use Illuminate\Support\{Carbon, Str};
@@ -37,23 +37,26 @@ class ApiControllerResult extends Controller
         $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
         if(!$viewadmin){
             return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan saat proses data']);
-        }else{
+        }else{ 
             $results = HeatLine::join('db_heats as heat', 'heat.code_data', '=', 'db_heat_lines.code_heat')
                 ->join('db_events as event', 'event.code_data', '=', 'heat.code_event')
+                ->leftJoin('db_results as r', 'r.code_event', '=', 'event.code_data')
                 ->where('event.code_kejuaraan', $request->code_championship)
+                ->whereNull('r.code_event')
                 ->groupBy('event.code_data', 'event.code_event')
                 ->orderBy('event.code_event', 'ASC')
                 ->select(
                     'event.code_data',
                     'event.code_event'
                 )
-                ->get();                
+                ->get();
+
             return response()->json($results);
         }
     }
 
     // Hasil Pertandingan
-    public function listresult(Request $request)
+    public function menudatahasilpertandingan(Request $request)
     {
         date_default_timezone_set('Asia/Jakarta');
         $object = [];
@@ -62,7 +65,7 @@ class ApiControllerResult extends Controller
             return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan saat proses data']);
         }else{
             $level_menu = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','menuhasilpertandingan')->first();
-            $level_sub_menu = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','listresult')->first();
+            $level_sub_menu = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','menudatahasilpertandingan')->first();
             $level_action = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','exportresult')->first();
             if($request->type == 'export'){
                 if($level_action->access_rights == 'No'){
@@ -78,19 +81,21 @@ class ApiControllerResult extends Controller
             $vd = max(1, min($vd, 100));    
             $keysearch = $request->keysearch;      
 
-            $results['listdata'] = Result::with(['heatLine', 'atlet', 'event'])
+            $results['listdata'] = Result::with(['heatLine.heat', 'atlet.club', 'event.championship'])
                 ->when($keysearch, function ($query) use ($keysearch) {
                     $query->where(function ($q) use ($keysearch) {
                         $q->where('code_data', 'ILIKE', "%{$keysearch}%")
-                        ->orWhere('best_time', 'ILIKE', "%{$keysearch}%")
                         ->orWhere('hasil', 'ILIKE', "%{$keysearch}%")
                         ->orWhere('ranking', 'ILIKE', "%{$keysearch}%")
-                        ->orWhere('catatan', 'ILIKE', "%{$keysearch}%")
+                        ->orWhere('catatan', 'ILIKE', "%{$keysearch}%")                        
                         ->orWhereHas('atlet', function ($qa) use ($keysearch) {
                             $qa->where('nama', 'ILIKE', "%{$keysearch}%");
                         })
                         ->orWhereHas('event', function ($qb) use ($keysearch) {
                             $qb->where('code_event', 'ILIKE', "%{$keysearch}%");
+                        })
+                        ->orWhereHas('heatline', function ($qc) use ($keysearch) {
+                            $qc->where('best_time', 'ILIKE', "%{$keysearch}%");
                         });
                     });
                 })
@@ -110,19 +115,11 @@ class ApiControllerResult extends Controller
             return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan saat proses data']);
         }else{
             $level_menu = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','menuhasilpertandingan')->first();
-            $level_sub_menu = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','listresult')->first();
+            $level_sub_menu = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','menudatahasilpertandingan')->first();
 
             if($level_menu->access_rights == 'No' OR $level_sub_menu->access_rights == 'No'){
                 return response()->json(['status_message' => 'error','note' => 'Tidak ada akses','results' => $object]);
-            }   
-
-            // $results['listdata'] = HeatLine::with(['heat.event', 'atlet'])
-            //     ->whereHas('heat.event', function ($q) use ($request) {
-            //         $q->where('code_kejuaraan', $request->code_championship)
-            //         ->where('code_data', $request->code_event);
-            //     })
-            //     ->orderBy('heat.nomor_seri', 'heatLine.line_number', 'ASC')
-            //     ->get();
+            }  
 
             $results['listdata'] = HeatLine::query()
                 ->with(['heat.event', 'atlet'])
@@ -147,7 +144,7 @@ class ApiControllerResult extends Controller
         if(!$viewadmin){ 
             return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan saat proses data']);
         }else{
-            $level_menu = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','listresult')->first();
+            $level_menu = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','menudatahasilpertandingan')->first();
             $level_action = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','inputresult')->first();
             
             if($level_menu->access_rights == 'No' OR $level_action->access_rights == 'No'){
@@ -157,12 +154,12 @@ class ApiControllerResult extends Controller
             $validator = Validator::make($request->all(), [
                 'code_championship' => 'required|string|max:200',
                 'code_event'        => 'required|string|max:200',
+                'hasil_up'             => ['required','regex:/^\d{2}:\d{2}\.\d{2}$/']
             ]);
 
             if($validator->fails()){
                 return response()->json(['status_message' => 'error','note' => $validator->errors()]);
             }
-
 
             try {
                 DB::beginTransaction();
@@ -219,10 +216,10 @@ class ApiControllerResult extends Controller
                 ]);
 
                 DB::commit();
-                return response()->json(['status_message' => 'success','note' => 'Data berhasil disimpan','results' => $object,'code_data' => $newCodeData,], 200);
+                return response()->json(['status_message' => 'success','note' => 'Data berhasil disimpan','results' => $object,'code_data' => $newCodeData], 200);
             } catch (\Exception $e) {
                 DB::rollBack();
-                return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan: ' . $e->getMessage(),'results' => $object,'code_data' => $object,], 500);
+                return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan: ' . $e->getMessage(),'results' => $object,'code_data' => $object], 500);
             }
         }
     }
@@ -235,7 +232,7 @@ class ApiControllerResult extends Controller
         if(!$viewadmin){ 
             return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan saat proses data']);
         }else{
-            $level_menu = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','listresult')->first();
+            $level_menu = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','menudatahasilpertandingan')->first();
             $level_action = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','inputresult')->first();
             
             if($level_menu->access_rights == 'No' OR $level_action->access_rights == 'No'){
@@ -245,30 +242,20 @@ class ApiControllerResult extends Controller
             $getdata['detail_championship'] = Championship::where('code_data', $request->code_championship)->first();
             $getdata['detail_event'] = Event::where('code_data', $request->code_event)->first();
 
-            // $getdata['result'] = Result::with(['heatLine.heat.event','atlet'])
-            //     ->where('code_data', $request->code_data)
-            //     ->where('code_event', $request->code_event)
-            //     ->get()
-            //     ->sortBy([
-            //         // fn($r) => $r->heatLine->heat->nomor_seri ?? 999,
-            //         // fn($r) => $r->heatLine->line_number ?? 999,
-            //         fn($r) => (int) ($r->heatLine?->heat?->nomor_seri ?? 999),
-            //         fn($r) => (int) ($r->heatLine?->line_number ?? 999),
-            //     ])
-            //     ->values();
-
             $getdata['result'] = Result::query()
                 ->with(['heatLine.heat.event','atlet'])
-                ->join('db_heat_lines as hl', 'hl.code_data', '=', 'db_results.code_heatline')
-                ->join('db_heats as h', 'h.code_data', '=', 'hl.code_heat')
-                ->where('db_results.code_data', $request->code_data)
-                ->where('db_results.code_event', $request->code_event)
-                ->orderByRaw('CAST(h.nomor_seri AS INTEGER) ASC')
-                ->orderByRaw('CAST(hl.line_number AS INTEGER) ASC')
-                ->select('db_results.*')
+                ->where('code_data', $request->code_data)
+                ->where('code_event', $request->code_event)
+                ->orderBy(
+                    Heat::selectRaw('CAST(nomor_seri AS INTEGER)')
+                        ->join('db_heat_lines', 'db_heat_lines.code_heat', '=', 'db_heats.code_data')
+                        ->whereColumn('db_heat_lines.code_data', 'db_results.code_heatline')
+                )
+                ->orderBy(
+                    HeatLine::selectRaw('CAST(line_number AS INTEGER)')
+                        ->whereColumn('db_heat_lines.code_data', 'db_results.code_heatline')
+                )
                 ->get();
-
-            // $getdata['result'] = Result::where('code_data', $request->code_data)->where('code_event', $request->code_event)->get();
 
             if(!$getdata['result']){
                 return response()->json(['status_message' => 'error','note' => 'Data tidak ditemukan','results' => $object]);
@@ -276,6 +263,306 @@ class ApiControllerResult extends Controller
                 return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','results' => $getdata]);
             }
         }
+    }
 
+    public function uploadfotoresult_old(Request $request)
+    {
+        date_default_timezone_set('Asia/Jakarta');
+        $object = [];
+        $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
+        if(!$viewadmin){ 
+            return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan saat proses data']);
+        }else{
+            $level_menu = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','menudatahasilpertandingan')->first();
+            $level_action = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','inputresult')->first();
+            
+            if($level_menu->access_rights == 'No' OR $level_action->access_rights == 'No'){
+                return response()->json(['status_message' => 'error','note' => 'Tidak ada akses','results' => $object]);
+            }   
+
+            try {
+                DB::beginTransaction();
+
+                $newCodeData = $request->code_data; 
+                $imageName = null;
+                $imageName = $request->file('foto');
+                if ($request->hasFile('foto')) {
+                    $imageName = 'FR-'.$request->id.'-'.time().'.'.$imageName->extension();
+                    $imageName->move(public_path('/themes/admin/AdminOne/image/upload/'), $imageName);
+
+                    Result::Where('code_athlete', $request->code_athlete)->where('code_event', $request->code_event)
+                    ->update([
+                        'foto' => $imageName,
+                    ]);
+
+                    if (!empty($viewadmin->image)) {
+                        File::delete(public_path('/themes/admin/AdminOne/image/upload/'.$viewadmin->image));
+                    }
+                }
+
+                $otpAct = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 1);
+                $newCodeData_activity = ltrim(Carbon::now()->format('Ymdhis') . $otpAct, '0');
+
+                Activity::create([
+                    'id'          => Str::uuid(),
+                    'code_data'   => $newCodeData_activity,
+                    'code_user'   => $viewadmin->code_data ?? null,
+                    'activity'    => 'Upload foto hasil pertandingan [' . $request->get('code_event') . ' - ' . $newCodeData . ']',
+                    'code_company'=> $viewadmin->code_company ?? null,
+                ]);
+
+                DB::commit();
+                return response()->json(['status_message' => 'success','note' => 'Data berhasil disimpan','results' => $object,'code_data' => $newCodeData,], 200);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan: ' . $e->getMessage(),'results' => $object,'code_data' => $object,], 500);
+            }
+        }
+    }
+
+    public function uploadfotoresult(Request $request)
+    {
+        date_default_timezone_set('Asia/Jakarta');
+        $object = [];
+
+        $viewadmin = User::where('id',$request->u)->where('key_token',$request->token)->first();
+        if(!$viewadmin){
+            return response()->json(['status_message'=>'error','note'=>'Terjadi kesalahan saat proses data']);
+        }
+
+        $level_menu = LevelAdmin::where('code_data',$viewadmin->level)->where('data_menu','menudatahasilpertandingan')->first();
+        $level_action = LevelAdmin::where('code_data',$viewadmin->level) ->where('data_menu','inputresult')->first();
+
+        if($level_menu->access_rights=='No' || $level_action->access_rights=='No'){
+            return response()->json(['status_message'=>'error','note'=>'Tidak ada akses' ]);
+        }
+
+        try{
+            DB::beginTransaction();
+
+            if(!$request->hasFile('foto')){
+                return response()->json(['status_message'=>'error','note'=>'File tidak ditemukan']);
+            }
+
+            $file = $request->file('foto');
+            $result = Result::where('id',$request->id)->first();
+
+            if(!$result){
+                return response()->json(['status_message'=>'error','note'=>'Data foto result tidak ditemukan']);
+            }
+
+            if($result->foto){
+                File::delete(public_path('/themes/admin/AdminOne/image/upload/'.$result->foto));
+            }
+
+            $imageName = 'FR-'.$request->id.'-'.time().'.'.$file->getClientOriginalExtension();
+            $file->move(public_path('/themes/admin/AdminOne/image/upload/'),$imageName );
+
+            $result->update([
+                'foto'=>$imageName
+            ]);
+
+            $otpAct = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),1);
+            $newCodeData_activity = ltrim(Carbon::now()->format('YmdHis').$otpAct,'0');
+
+            Activity::create([
+                'id'=>Str::uuid(),
+                'code_data'=>$newCodeData_activity,
+                'code_user'=>$viewadmin->code_data ?? null,
+                'activity'=>'Upload foto hasil pertandingan ['.$result->code_event.' - '.$result->code_data.']',
+                'code_company'=>$viewadmin->code_company ?? null,
+            ]);
+
+            DB::commit();
+            return response()->json(['status_message'=>'success','note'=>'Foto berhasil diupload','url'=>asset('/themes/admin/AdminOne/image/upload/'.$imageName),'code_data'=>$result->code_data]);
+
+        }catch(\Exception $e){
+            DB::rollBack();
+            return response()->json(['status_message'=>'error','note'=>$e->getMessage()],500);
+        }
+    }
+
+    public function savecatatan(Request $request)
+    {
+        date_default_timezone_set('Asia/Jakarta');
+        $object = [];
+        $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
+        if(!$viewadmin){ 
+            return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan saat proses data']);
+        }else{
+            $level_menu = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','menudatahasilpertandingan')->first();
+            $level_action = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','inputresult')->first();
+            
+            if($level_menu->access_rights == 'No' OR $level_action->access_rights == 'No'){
+                return response()->json(['status_message' => 'error','note' => 'Tidak ada akses','results' => $object]);
+            }
+
+            try {
+                DB::beginTransaction();   
+
+                $result = Result::where('id',$request->id)->first();
+                if(!$result){
+                    return response()->json(['status_message'=>'error','note'=>'Data foto result tidak ditemukan','code_data' => $object]);
+                }
+
+                $result->update([
+                    'catatan'=>$request->catatan
+                ]);
+
+                $otpAct = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 1);
+                $newCodeData_activity = ltrim(Carbon::now()->format('Ymdhis') . $otpAct, '0');
+
+                Activity::create([
+                    'id'          => Str::uuid(),
+                    'code_data'   => $newCodeData_activity,
+                    'code_user'   => $viewadmin->code_data ?? null,
+                    'activity'    => 'Tambah catatan hasil pertandingan ['.$result->code_event.' - '.$result->code_data.']',
+                    'code_company'=> $viewadmin->code_company ?? null,
+                ]);
+
+                DB::commit();
+                return response()->json(['status_message' => 'success','note' => 'Data berhasil disimpan','results' => $object,'code_data' => $result->code_data], 200);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan: ' . $e->getMessage(),'results' => $object,'code_data' => $object], 500);
+            }
+        }
+    }
+
+    public function saveresultlist(Request $request)
+    {
+        date_default_timezone_set('Asia/Jakarta');
+        $object = [];
+        $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
+        if(!$viewadmin){ 
+            return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan saat proses data']);
+        }else{
+            $level_menu = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','menudatahasilpertandingan')->first();
+            $level_action = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','inputresult')->first();
+            
+            if($level_menu->access_rights == 'No' OR $level_action->access_rights == 'No'){
+                return response()->json(['status_message' => 'error','note' => 'Tidak ada akses','results' => $object]);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'code_championship' => 'required|string|max:200',
+                'code_event'        => 'required|string|max:200',
+            ]);
+
+            if($validator->fails()){
+                return response()->json(['status_message' => 'error','note' => $validator->errors()]);
+            }
+
+            try {
+                DB::beginTransaction();
+
+                $codeData = $request->get('code_data');
+                $codeChampionship = $request->get('code_championship');
+                $codeEvent = $request->get('code_event');
+
+                $invalidExists = Result::where('code_data', $codeData)
+                    ->where(function ($q) {
+                        $q->where(function ($q2) {
+                            $q2->where(function ($q3) {
+                                    $q3->whereNull('hasil')
+                                    ->orWhere('hasil', '00:00.00');
+                                })
+                            ->whereNotNull('foto');
+                        })
+                        ->orWhere(function ($q2) {
+                            $q2->whereNotNull('hasil')
+                            ->where('hasil', '!=', '00:00.00')
+                            ->whereNull('foto');
+                        });
+                    })
+                    ->exists();
+
+                if ($invalidExists) { 
+                    throw new \Exception('Data hasil dan foto tidak sesuai aturan');
+                }
+
+                $affected = Result::where('code_data', $codeData)
+                    ->update([
+                        'status_data' => 'Finish'
+                    ]);
+
+                if ($affected === 0) {
+                    return response()->json(['status_message' => 'error','note' => 'Data tidak ditemukan','code_data' => $codeData,'code_championship' => $codeChampionship,'code_event' => $codeEvent]);
+                }
+
+                $rows = Result::where('code_event', $codeEvent)
+                    ->where(function ($q) {
+                        $q->whereNull('catatan')
+                        ->orWhere('catatan', '');
+                    })
+                    ->whereNotNull('hasil')
+                    ->where('hasil', '!=', '00:00.00')
+                    ->orderByRaw("
+                        split_part(hasil, ':', 1)::int * 60 +
+                        split_part(split_part(hasil, ':', 2), '.', 1)::int +
+                        split_part(hasil, '.', 2)::int / 100.0
+                    ASC")
+                    ->get();
+
+                $poinMap = [
+                    1 => 5,
+                    2 => 3,
+                    3 => 1
+                ];
+
+                $ranking = 0;
+                $lastTime = null;
+                $posisi = 0;
+
+                foreach ($rows as $row) {
+                    $posisi++;
+
+                    [$minSec, $ms] = explode('.', $row->hasil);
+                    [$min, $sec] = explode(':', $minSec);
+                    $timeValue = ($min * 60) + $sec + ($ms / 100);
+
+                    if ($lastTime === null || $timeValue != $lastTime) {
+                        $ranking = $posisi;
+                    }
+
+                    $poin = $poinMap[$ranking] ?? 0;
+
+                    $row->update([
+                        'ranking' => $ranking,
+                        'poin'    => $poin
+                    ]);
+
+                    $lastTime = $timeValue;
+                }
+
+                Result::where('code_event', $codeEvent)
+                    ->where(function ($q) {
+                        $q->whereIn('catatan', ['DNF','DSQ','NS'])
+                        ->orWhereNull('hasil')
+                        ->orWhere('hasil', '00:00.00');
+                    })
+                    ->update([
+                        'ranking' => 0,
+                        'poin'    => 0
+                    ]);
+
+                $otpAct = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 1);
+                $newCodeData_activity = ltrim(Carbon::now()->format('YmdHis') . $otpAct, '0');
+
+                Activity::create([
+                    'id'           => Str::uuid(),
+                    'code_data'    => $newCodeData_activity,
+                    'code_user'    => $viewadmin->code_data ?? null,
+                    'activity'     => 'Simpan data dan selesai hasil pertandingan ['.$request->get('code_event').' - '.$codeData.']',
+                    'code_company' => $viewadmin->code_company ?? null,
+                ]);
+
+                DB::commit();
+                return response()->json(['status_message' => 'success','note' => 'Data berhasil disimpan','code_data' => $codeData,'code_championship' => $codeChampionship,'code_event' => $codeEvent], 200);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan: ' . $e->getMessage(),'code_data' => $codeData,'code_championship' => $codeChampionship,'code_event' => $codeEvent], 500);
+            }
+        }
     }
 }

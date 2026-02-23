@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('db_clubs', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->string('code_data')->unique();
             $table->string('nama_club');
             $table->string('kota_asal');
             $table->string('kontak')->nullable();

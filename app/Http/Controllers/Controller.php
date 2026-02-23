@@ -109,71 +109,84 @@ class Controller extends BaseController
         }
     }
 
-    // public function backup_database() 
-    // {
-    //     date_default_timezone_set('Asia/Jakarta');
-    //     $filename = "backup-" . Carbon::now()->format('Y-m') . ".sql";        
-    //     $command = "mysqldump  --host=" . env('DB_HOST') . " --user=" . env('DB_USERNAME') ." --password=" . env('DB_PASSWORD') . " " . env('DB_DATABASE') . " -c>$filename 2>&1";
-    //     $returnVar = NULL;
-    //     $output  = NULL;
-    
-    //     exec($command, $output, $returnVar);        
-    // }
 
     public function backup_database()
     {
-        date_default_timezone_set('Asia/Jakarta');
-        $filename = "backup-" . \Carbon\Carbon::now()->format('Y-m') . ".sql";
-
         $host = env('DB_HOST');
         $port = env('DB_PORT', 5432);
         $database = env('DB_DATABASE');
         $username = env('DB_USERNAME');
         $password = env('DB_PASSWORD');
 
-        // Format command untuk PostgreSQL
-        $command = "PGPASSWORD=\"$password\" pg_dump -h $host -p $port -U $username -F p -c $database > $filename 2>&1";
-
-        $returnVar = null;
-        $output = null;
-
-        exec($command, $output, $returnVar);
-
-        if ($returnVar === 0) {
-            return response()->json(['success' => true, 'file' => $filename]);
-        } else {
-            return response()->json(['success' => false, 'error' => $output]);
+        $backupPath = storage_path('app/backup');
+        if (!is_dir($backupPath)) {
+            mkdir($backupPath, 0755, true);
         }
+
+        // $filename = $database.'_'.date('Ymd_His').'.backup';
+        $filename = $database.'_'.date('Ym').'.backup';
+        $file = $backupPath.DIRECTORY_SEPARATOR.$filename;
+
+        // DETECT OS
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $pgDump = 'C:\Program Files\PostgreSQL\16\bin\pg_dump.exe';
+        } else {
+            $pgDump = '/usr/bin/pg_dump';
+        }
+
+        $command = "\"$pgDump\" -h $host -p $port -U $username -F c -b -v -f \"$file\" $database";
+
+        putenv("PGPASSWORD=$password");
+
+        exec($command." 2>&1", $output, $returnVar);
+
+        if ($returnVar === 0 && file_exists($file) && filesize($file) > 0) {
+            return response()->json(['success' => true,'file' => $filename,'size' => filesize($file),'path' => $file]);
+        }
+
+        return response()->json(['success' => false,'output' => $output,'return' => $returnVar]);
     }
 
     public function restore_database($backupFile)
     {
-        date_default_timezone_set('Asia/Jakarta');
-
         $host = env('DB_HOST');
         $port = env('DB_PORT', 5432);
         $database = env('DB_DATABASE');
         $username = env('DB_USERNAME');
         $password = env('DB_PASSWORD');
 
-        // Pastikan file backup ada
-        if (!file_exists($backupFile)) {
-            return response()->json(['success' => false, 'error' => 'File backup tidak ditemukan']);
+        if (!file_exists($backupFile) || filesize($backupFile) == 0) {
+            return response()->json(['success' => false, 'error' => 'File backup tidak ditemukan atau kosong']);
         }
 
-        // Command restore PostgreSQL
-        $command = "PGPASSWORD=\"$password\" psql -h $host -p $port -U $username -d $database -f $backupFile 2>&1";
+        $ext = strtolower(pathinfo($backupFile, PATHINFO_EXTENSION));
 
-        $returnVar = null;
-        $output = null;
+        // DETECT OS
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $psql      = 'C:\Program Files\PostgreSQL\16\bin\psql.exe';
+            $pgRestore = 'C:\Program Files\PostgreSQL\16\bin\pg_restore.exe';
+        } else {
+            $psql      = '/usr/bin/psql';
+            $pgRestore = '/usr/bin/pg_restore';
+        }
 
-        exec($command, $output, $returnVar);
+        putenv("PGPASSWORD=$password");
+
+        if ($ext === 'sql') {
+            // restore plain SQL
+            $command = "\"$psql\" -h $host -p $port -U $username -d $database -f \"$backupFile\"";
+        } else {
+            // restore custom backup
+            $command = "\"$pgRestore\" -h $host -p $port -U $username -d $database -c -v \"$backupFile\"";
+        }
+
+        exec($command." 2>&1", $output, $returnVar);
 
         if ($returnVar === 0) {
-            return response()->json(['success' => true, 'message' => 'Database berhasil di-restore']);
-        } else {
-            return response()->json(['success' => false, 'error' => $output]);
+            return response()->json(['success' => true,'message' => 'Database berhasil di-restore','file' => basename($backupFile)]);
         }
+
+        return response()->json(['success' => false,'output' => $output,'return' => $returnVar,'cmd' => $command]);
     }
     
     public function generateCode($length = 4, $type = 'letters') {
@@ -196,6 +209,8 @@ class Controller extends BaseController
     // $kodeHuruf  = generateCode(4, 'letters'); // misal: "XZQP"
     // $kodeAngka  = generateCode(4, 'numbers'); // misal: "0385"
     // $kodeCampur = generateCode(6, 'mixed');   // misal: "A9C7XZ"
+
+    
 
     public function get_op_gaya($request)
     {

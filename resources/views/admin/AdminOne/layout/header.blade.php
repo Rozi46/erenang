@@ -87,3 +87,25 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- GLOBAL ALERT -->
+            <div class="data_alert_page global-alert">
+                <div line="alert_success" class="alert alert-success" style="display:none;"></div>
+                <div line="alert_danger"  class="alert alert-danger"  style="display:none;"></div>
+            </div>
+
+            <!-- GLOBAL TOAST -->
+            <div id="globalToast"></div>
+
+            <!-- GLOBAL CONFIRM -->
+            <div class="modal fade" id="globalConfirm" tabindex="-1">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-body text-center" id="confirmText"></div>
+                        <div class="modal-footer justify-content-center">
+                            <button class="btn btn-secondary btn-sm" data-dismiss="modal">Batal</button>
+                            <button class="btn btn-danger btn-sm" id="confirmOk">Ya</button>
+                        </div>
+                    </div>
+                </div>
+            </div>

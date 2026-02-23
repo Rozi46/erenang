@@ -24,8 +24,6 @@ class ApiControllerRegister extends Controller
         if(!$viewadmin){
             return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan saat proses data']);
         }else{
-            // $results = Atlet::where('code_club',$request->code_club)->orderBy('nama', 'ASC')->get();
-            // return response()->json(['status_message' => 'success','results' => $results]);
             $results = Atlet::select('code_data','nama')->where('code_club', $request->code_club)->orderBy('nama', 'ASC')->get();
             return response()->json($results);
         }
@@ -112,45 +110,42 @@ class ApiControllerRegister extends Controller
             $formattedNumber = str_pad($incrementedNumber, 4, '0', STR_PAD_LEFT);
             $yearnow = ltrim(Carbon::now()->format('Ymdhis'), '0');
             $newCodeData = 'RGS-' .$yearnow .$otp .$formattedNumber;
+  
+            try {
+                DB::beginTransaction();
 
-            // if($count['suratcuti'] == 0){   
-                try {DB::beginTransaction();
+                Registrasi::create([
+                    'id'                => Str::uuid(),
+                    'code_data'         => $newCodeData,
+                    'code_champion'     => $request->code_championship,
+                    'code_athlete'      => $request->code_atlete,
+                    'code_event'        => json_encode($request->code_event),
+                    'code_age_group'    => '-',
+                    'status'            => 'pending',
+                    'payment_status'    => 'not_required',
+                    'document'          => json_encode(['-']),
+                    'notes'             => '-',
+                    'submitted_at'      => now(),
+                    'verified_at'       => now(),
+                    'code_user'         => $viewadmin->code_data ?? null,
+                ]); 
 
-                    Registrasi::create([
-                        'id'                => Str::uuid(),
-                        'code_data'         => $newCodeData,
-                        'code_champion'     => $request->code_championship,
-                        'code_athlete'      => $request->code_atlete,
-                        'code_event'        => json_encode($request->code_event),
-                        'code_age_group'    => '-',
-                        'status'            => 'pending',
-                        'payment_status'    => 'not_required',
-                        'document'          => json_encode(['-']),
-                        'notes'             => '-',
-                        'submitted_at'      => now(),
-                        'verified_at'       => now(),
-                        'code_user'         => $viewadmin->code_data ?? null,
-                    ]); 
-
-                    $otpAct = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 1);
-                    $newCodeData_activity = ltrim(Carbon::now()->format('Ymdhis') .$otpAct, '0');
-                    Activity::create([
-                        'id'          => Str::uuid(),
-                        'code_data'   => $newCodeData_activity,
-                        'code_user'   => $viewadmin->code_data ?? null,
-                        'activity'    => 'Input pendaftaran [' . $getdata['atlet']->nama . ' - ' . $newCodeData . ']',
-                        'code_company'=> $viewadmin->code_company ?? null,
-                    ]);
-                    
-                    DB::commit();
-                    return response()->json(['status_message' => 'success','note' => 'Data berhasil disimpan','results' => $object]);
-                } catch (\Exception $e) {
-                    DB::rollBack();
-                    return response()->json(['status_message' => 'error','note' => 'Data gagal disimpan ' . $e->getMessage(),'results' => $object]);
-                }
-            // }else{
-            //     return response()->json(['status_message' => 'error','note' => 'Data nomor surat cuti sudah terdaftars']);
-            // }
+                $otpAct = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 1);
+                $newCodeData_activity = ltrim(Carbon::now()->format('Ymdhis') .$otpAct, '0');
+                Activity::create([
+                    'id'          => Str::uuid(),
+                    'code_data'   => $newCodeData_activity,
+                    'code_user'   => $viewadmin->code_data ?? null,
+                    'activity'    => 'Input pendaftaran [' . $getdata['atlet']->nama . ' - ' . $newCodeData . ']',
+                    'code_company'=> $viewadmin->code_company ?? null,
+                ]);
+                
+                DB::commit();
+                return response()->json(['status_message' => 'success','note' => 'Data berhasil disimpan','results' => $object]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['status_message' => 'error','note' => 'Data gagal disimpan ' . $e->getMessage(),'results' => $object]);
+            }
         } 
     }
 
@@ -186,18 +181,6 @@ class ApiControllerRegister extends Controller
                 $results['detail_champion'][$data->code_data] = Championship::where('code_data', $data->code_champion)->first();
                 $results['detail_atlet'][$data->code_data] = Atlet::where('code_data', $data->code_athlete)->first();
                 $results['detail_club'][$data->code_data] = Club::where('code_data', $results['detail_atlet'][$data->code_data]->code_club)->first();   
-                // $results['detail_event'][$data->code_data] = Event::where('code_data', $data->code_event)->first();
-
-                // //EVENT (JSON ARRAY)
-                // $eventCodes = is_array($data->code_event)
-                //     ? $data->code_event
-                //     : json_decode($data->code_event, true);
-
-                // $results['detail_event'][$data->code_data] =Event::whereIn('code_data', $eventCodes)->get();
-
-                //KU (AMBIL DARI SEMUA EVENT)
-                // $kodeKategori = $results['detail_event'][$data->code_data]->pluck('code_kategori')->unique()->values();
-                // $results['detail_ku'][$data->code_data] =KelompokUmur::whereIn('code_data', $kodeKategori)->get();
 
                 //EVENT (JSON ARRAY)
                 $eventCodes = is_array($data->code_event)
@@ -303,17 +286,7 @@ class ApiControllerRegister extends Controller
             $level_action = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','editregister')->first();                
             if($level_menu->access_rights == 'No' OR $level_action->access_rights == 'No'){
                 return response()->json(['status_message' => 'error','note' => 'Tidak ada akses','results' => $object]);
-            }
-            // $validator = Validator::make($request->all(), [
-            //     'nama_club'         => 'required|string|max:200',
-            //     'nama_atlet'       => 'required|string|max:200',
-            //     'nama_kejuaraan' => 'required|string|max:200',
-            //     'code_event'        => 'required|array|min:1',
-            //     'code_event.*'       => 'string|max:200',
-            // ]);
-            // if($validator->fails()){
-            //     return response()->json(['status_message' => 'error','note' => $validator->errors()]);
-            // }  
+            } 
             
             $getdata['register'] = Registrasi::where('code_data', $request->code_data)->first();
             if($getdata['register']){   

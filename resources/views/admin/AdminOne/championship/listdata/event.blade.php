@@ -104,26 +104,26 @@
 													</script>
 													<tr>
 														<td style="text-align:center;">{{$no}} </td>
-														<td >{{$view_data['code_event'] ?? 'Belum ditentukan'}}</td>
+														<td >{{ $view_data['code_event'] ?? 'Belum ditentukan' }}</td>
 														 @php
 															$jarak = isset($view_data['jarak']) ? number_format($view_data['jarak'], 0, ',', '') . ' M' : 'Belum ditentukan';
-															$gaya = $listdata['detail_gaya'][$view_data['code_data']]['nama_gaya'] ?? '';
-															$kelompok = $listdata['detail_ku'][$view_data['code_data']]['code_kelompok'] ?? '';
+															$gaya = $view_data['kategori']['nama_gaya'] ?? '';
+															$kelompok = $view_data['kelompok_umur']['code_kelompok'] ?? '';
 															$gender = $view_data['gender'] ?? '';
 															$hasil = trim("$jarak $gaya $kelompok $gender");
 														@endphp
 														<td >{{ $hasil }}</td>
                                                         <td style="text-align:center;">{{ !empty($view_data['tanggal']) ? Carbon::parse($view_data['tanggal'])->translatedFormat('d F Y') : 'Belum ditentukan' }}</td>
-														<td style="text-align:center;">{{$listdata['detail_kejuaraan'][$view_data['code_data']]['nama_kejuaraan'] ?? 'Belum ditentukan'}}</td>
+														<td style="text-align:center;">{{ $view_data['championship']['nama_kejuaraan'] ?? 'Belum ditentukan' }}</td>
 														<td style="text-align:center;">
 															<button class="btn btn-info" btn="generateHeat_{{$view_data['code_data']}}">Generate Heat & Line</button><br>
-															@if($view_data['code_event'] = 0)
-																<div class="alert alert-success" style="margin: 0 auto; display: inline-block; text-align: center; font-size: 14px; padding: 2px 10px;">
-																	<strong>Heat Generated</strong>
-																</div>
-															@else
+															@if($view_data['count_used'] == 0)
 																<div class="alert alert-warning" style="margin: 0 auto; display: inline-block; text-align: center; font-size: 14px; padding: 2px 10px;">
 																	<strong>Belum Generate</strong>
+																</div>
+															@else
+																<div class="alert alert-success" style="margin: 0 auto; display: inline-block; text-align: center; font-size: 14px; padding: 2px 10px;">
+																	<strong>Heat Generated</strong>
 																</div>
 															@endif
 														</td>
@@ -134,7 +134,7 @@
 																<div class="dropdown-menu">
 																	<h5 class="dropdown-header">Pengaturan Data</h5>
 																	<a load="true" class="dropdown-item" href="/admin/editevent?d={{$view_data['code_data']}}">Lihat/Ubah Data</a>
-																	<a class="dropdown-item @if($listdata['count_used'][$view_data['code_data']] > 0) disabled @endif @if($level_user['deleteevent'] == 'No') disabled @endif" <?php if($listdata['count_used'][$view_data['code_data']] == 0){ if($level_user['deleteevent'] == 'Yes'){ ?> btn="del_data_{{$view_data['code_data']}}"<?php } }?>>Hapus Data</a>
+																	<a class="dropdown-item @if($view_data['count_used'] > 0) disabled @endif @if($level_user['deleteevent'] == 'No') disabled @endif" <?php if($view_data['count_used'] == 0){ if($level_user['deleteevent'] == 'Yes'){ ?> btn="del_data_{{$view_data['code_data']}}"<?php } }?>>Hapus Data</a>
 																</div>
 															</div>
 														</td>

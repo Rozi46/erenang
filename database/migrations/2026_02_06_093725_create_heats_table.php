@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('db_heats', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->string('code_data')->unique();
             $table->foreignUuid('event_id')->constrained('events')->onDelete('cascade');
             $table->integer('nomor_seri');
             $table->timestamps();

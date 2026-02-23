@@ -26,11 +26,7 @@ class Championship extends Model
     // Championship punya banyak Event
     public function event()
     {
-        return $this->hasMany(
-            Event::class,
-            'code_kejuaraan', // FK di tabel db_events
-            'code_data'       // key di db_championships
-        );
+        return $this->hasMany(Event::class,'code_kejuaraan', 'code_data');
     }
 
     public function registrasi()

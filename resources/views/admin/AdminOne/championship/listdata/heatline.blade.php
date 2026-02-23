@@ -42,8 +42,6 @@
 													<th style="min-width:150px; text-align: center;">Hasil</th>
 													<th style="min-width:150px; text-align: center;">Foto Hasil</th>
 													<th style="min-width:150px; text-align: center;">Ranking</th>
-                                                    
-													<th class="colright" style="width:30px; text-align: center;"><i class="head fa fa-cog"></i></th>
 												</tr>
 											</thead>
 											<tbody>
@@ -51,26 +49,6 @@
                                                     <?php 
                                                         $no++ ;
                                                     ?>
-													<script type="text/javascript">
-														$(document).ready(function(){
-															$('[btn="del_data_{{$view_data['code_data']}}"]').click(function(){
-																if($('[btn="del_data_{{$view_data['code_data']}}"]').click){
-																	$('div[data-model="confirmasi"]').modal({backdrop: false});
-																	$('div[data-model="confirmasi"] .modal-body').html('<div class="alert alert-danger">Anda yakin untuk menghapus data {{$view_data['code_data']}}.</div>');
-																	$('button[btn-action="action-confirmasi"]').remove();
-																	$('button[btn-action="close-confirmasi"]').before('<button type="button" class="btn btn-primary btn-sm" btn-action="action-confirmasi">Yakin</button>');
-																	$('button[btn-action="action-confirmasi"]').click(function(){
-																		if($('button[btn-action="action-confirmasi"]').click){
-																			$('button[btn-action="action-confirmasi"]').remove();
-																			$('button[btn-action="close-confirmasi"]').remove();
-																			loadingpage(20000);
-																			window.location.href = "/admin/deleteheatline?d={{$view_data['code_data']}}";
-																		}
-																	});
-																}
-															});
-														});
-													</script>
 													<tr>
 														<td style="text-align:center;">{{ $no }}</td>
 														<td style="text-align:center;">{{ $view_data['code_data'] ?? 'Belum ditentukan' }}</td>
@@ -80,28 +58,9 @@
 														<td style="text-align:left;">{{ $view_data['atlet']['nama'] ?? 'Belum ditentukan' }}</td>
 														<td style="text-align:center;">{{ number_format($view_data['line_number'] ?? 0, 0,"",".") }}</td>
 														<td style="text-align:center;">{{ $view_data['best_time'] ?? 'Belum ditentukan' }}</td>
-														<td style="text-align:center;">
-															<input type="text" name="new_hasil_{{$view_data['code_data']}}" value="{{ $view_data['hasil'] ?? '00:00.00' }}" placeholder="MM:SS.xx" style="width: 90px; text-align:center;" onKeyPress="return goodchars(event,'0123456789',this)" />
-														</td>
-														<!-- src="{{ $view_data['code_data'] ? asset('/themes/admin/AdminOne/image/public/'.$view_data['code_data']) : asset('/themes/admin/AdminOne/image/public/icon.png') }}"  -->
-                                                        <td style="text-align:center;">
-                                                            <img                                                                 
-																src="{{ asset('/themes/admin/AdminOne/image/no_image.png') }}"
-                                                                alt="foto" 
-                                                                style="width: 150px; height: 100px;">
-                                                        </td>
+														<td style="text-align:center;">{{ $view_data['hasil'] ?? '00:00.00' }}</td>
+                                                        <td style="text-align:center;"><img src="{{ asset('/themes/admin/AdminOne/image/no_image.png') }}" alt="foto" style="width: 150px; height: 100px;"></td>
 														<td style="text-align:center;">{{ number_format($view_data['ranking'] ?? 0, 0,"",".") }}</td>
-
-														<td class="colright" style="text-align:center;">
-															<div class="dropdown dropleft">
-																<button type="button" class="btn dropdown-toggle" data-toggle="dropdown">Atur</button>
-																<div class="dropdown-menu">
-																	<h5 class="dropdown-header">Pengaturan Data</h5>
-																	<a load="true" class="dropdown-item" href="/admin/editheatline?d={{$view_data['code_data']}}">Lihat/Ubah Data</a>
-																	<a class="dropdown-item @if($view_data['count_used'] > 0) disabled @endif @if($level_user['deleteheatline'] == 'No') disabled @endif" <?php if($view_data['count_used'] == 0){ if($level_user['deleteheatline'] == 'Yes'){ ?> btn="del_data_{{$view_data['code_data']}}"<?php } }?>>Hapus Data</a>
-																</div>
-															</div>
-														</td>
 													</tr>
 												@empty
 													<tr>

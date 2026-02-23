@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('db_heat_lines', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->string('code_data')->unique();
             $table->foreignUuid('heat_id')->constrained('heats')->onDelete('cascade');
             $table->foreignUuid('athlete_id')->constrained('athletes')->onDelete('cascade');
             $table->integer('line_number');

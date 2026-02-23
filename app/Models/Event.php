@@ -25,14 +25,9 @@ class Event extends Model
     public $incrementing = false;
     protected $keyType = 'string';    
     
-    // 🔗 Event milik satu Championship
     public function championship()
     {
-        return $this->belongsTo(
-            Championship::class,
-            'code_kejuaraan', // FK di db_events
-            'code_data'       // key di db_championships
-        );
+        return $this->belongsTo(Championship::class,'code_kejuaraan', 'code_data');
     }
 
     public function kategori()

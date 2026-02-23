@@ -35,13 +35,17 @@ Route::get('/admin/dash',[\App\Http\Controllers\SistemController::class, 'dash']
 	Route::get('/admin/deletechampionship',[\App\Http\Controllers\ActionController::class, 'deletechampionship']);
 	
 	// Data Hasil Pertandingan
-	Route::get('/admin/listresult',[\App\Http\Controllers\SistemController::class, 'listresult']);
+	Route::get('/admin/menudatahasilpertandingan',[\App\Http\Controllers\SistemController::class, 'menudatahasilpertandingan']);
+	Route::get('/admin/historyresult',[\App\Http\Controllers\SistemController::class, 'menudatahasilpertandingan']);
 	Route::get('/admin/inputresult',[\App\Http\Controllers\SistemController::class, 'inputresult']);
 	Route::get('/admin/geteventresult',[\App\Http\Controllers\SistemController::class, 'getopeventresult']);
 	Route::get('/admin/listdataevent',[\App\Http\Controllers\SistemController::class, 'listdataevent']);
 	Route::post('/admin/saveresult',[\App\Http\Controllers\ActionController::class, 'saveresult']);
 	Route::get('/admin/viewresult',[\App\Http\Controllers\SistemController::class, 'viewresult']);
 	Route::get('/admin/listdataresult',[\App\Http\Controllers\SistemController::class, 'listdataresult']);
+	Route::post('/admin/uploadfotoresult',[\App\Http\Controllers\ActionController::class, 'uploadfotoresult']);
+	Route::post('/admin/savecatatan',[\App\Http\Controllers\ActionController::class, 'savecatatan']);
+	Route::post('/admin/saveresultlist',[\App\Http\Controllers\ActionController::class, 'saveresultlist']);
 
 	// Data Pendafataran
 	Route::get('/admin/menuregister',[\App\Http\Controllers\SistemController::class, 'menuregister']);

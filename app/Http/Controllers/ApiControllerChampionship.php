@@ -55,17 +55,15 @@ class ApiControllerChampionship extends Controller
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100));
             
-            $results['listdata'] = Championship::where(function($query) use ($request) {
+            $results['listdata'] = Championship::with(['event'])
+                ->withCount(['event as count_used'])
+                ->where(function($query) use ($request) {
                     $query->whereRaw('code_data ILIKE ?', ["%{$request->keysearch}%"])
                     ->orWhereRaw('nama_kejuaraan ILIKE ?', ["%{$request->keysearch}%"])
                     ->orWhereRaw('lokasi ILIKE ?', ["%{$request->keysearch}%"]);
                 })
                 ->orderBy('nama_kejuaraan', 'ASC')
                 ->paginate($vd ?? 20);
-
-            foreach($results['listdata'] as $key => $data){
-                $results['count_used'][$data->code_data] = Event::where('code_kejuaraan', $data->code_data)->count();             
-            }
                 
             return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','count_all_data' => $results['listdata']->total(),'count_view_data' => $vd,'keysearch' => $request->keysearch,'results' => $results]);
         }
@@ -163,10 +161,9 @@ class ApiControllerChampionship extends Controller
                 return response()->json(['status_message' => 'error','note' => 'Tidak ada akses','results' => $object]);
             }
 
-            $getdata['championship'] = Championship::where('code_data', $request->code_data)->first();
-            if($getdata['championship']){ 
-                $count_used = Event::where('code_kejuaraan', $getdata['championship']->code_data)->count();        
-                return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','results' => $getdata,'count_used' => $count_used]);
+            $getdata['championship'] = Championship::with(['event'])->withCount(['event as count_used'])->where('code_data', $request->code_data)->first();
+            if($getdata['championship']){        
+                return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','results' => $getdata,'count_used' => $getdata['championship']->count_used]);
             }else{
                 return response()->json(['status_message' => 'error','note' => 'Data tidak ditemukan','results' => $object]);
             }
@@ -318,7 +315,9 @@ class ApiControllerChampionship extends Controller
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100));
             
-            $results['listdata'] = Event::where(function($query) use ($request) {
+            $results['listdata'] = Event::with(['heat','kategori','kelompokUmur','championship'])
+                ->withCount(['heat as count_used'])
+                ->where(function($query) use ($request) {
                     $query->whereRaw('code_data ILIKE ?', ["%{$request->keysearch}%"])
                     ->orWhereRaw('code_event ILIKE ?', ["%{$request->keysearch}%"])
                     ->orWhereRaw('code_gaya ILIKE ?', ["%{$request->keysearch}%"])
@@ -329,13 +328,6 @@ class ApiControllerChampionship extends Controller
                 })
                 ->orderBy('created_at', 'DESC')
                 ->paginate($vd ?? 20);
-
-            foreach($results['listdata'] as $key => $data){
-                $results['count_used'][$data->code_data] = Heat::where('code_event', $data->code_data)->count();     
-                $results['detail_gaya'][$data->code_data] = Kategori::where('code_data', $data->code_gaya)->first(); 
-                $results['detail_ku'][$data->code_data] = KelompokUmur::where('code_data', $data->code_kategori)->first();
-                $results['detail_kejuaraan'][$data->code_data] = Championship::where('code_data', $data->code_kejuaraan)->first();
-            }
                 
             return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','count_all_data' => $results['listdata']->total(),'count_view_data' => $vd,'keysearch' => $request->keysearch,'results' => $results]);
         }
@@ -436,10 +428,9 @@ class ApiControllerChampionship extends Controller
                 return response()->json(['status_message' => 'error','note' => 'Tidak ada akses','results' => $object]);
             }
 
-            $getdata['event'] = Event::where('code_data', $request->code_data)->first();
-            if($getdata['event']){ 
-                $count_used = Heat::where('code_event', $getdata['event']->code_data)->count();   
-                return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','results' => $getdata,'count_used' => $count_used]);
+            $getdata['event'] = Event::with(['heat','kategori','kelompokUmur','championship'])->withCount(['heat as count_used'])->where('code_data', $request->code_data)->first();
+            if($getdata['event']){   
+                return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','results' => $getdata,'count_used' => $getdata['event']->count_used]);
             }else{
                 return response()->json(['status_message' => 'error','note' => 'Data tidak ditemukan','results' => $object]);
             }
@@ -682,21 +673,6 @@ class ApiControllerChampionship extends Controller
 
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100));
-            
-            // $results['listdata'] = Heat::where(function($query) use ($request) {
-            //         $query->whereRaw('code_data ILIKE ?', ["%{$request->keysearch}%"])
-            //         ->orWhereRaw('code_event ILIKE ?', ["%{$request->keysearch}%"])
-            //         ->orWhereRaw("CAST(nomor_seri AS TEXT) ILIKE ?", ["%{$request->keysearch}%"]);
-            //     })
-            //     ->orderBy('nomor_seri', 'ASC')
-            //     ->paginate($vd ?? 20);
-
-            // foreach($results['listdata'] as $key => $data){
-            //     $results['count_used'][$data->code_data] = HeatLine::where('code_heat', $data->code_data)->count();
-            //     $results['detail_event'][$data->code_data] = Event::where('code_data', $data->code_event)->first(); 
-            //     $results['detail_champion'][$data->code_data] = Championship::where('code_data', $results['detail_event'][$data->code_data]->code_kejuaraan)->first(); 
-            // }
-
 
             $results['listdata'] = Heat::with(['event.championship'])
                 ->withCount(['heatLines as count_used'])
@@ -707,7 +683,6 @@ class ApiControllerChampionship extends Controller
                 })
                 ->orderBy('nomor_seri', 'ASC')
                 ->paginate($vd ?? 20);
-
                 
             return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','count_all_data' => $results['listdata']->total(),'count_view_data' => $vd,'keysearch' => $request->keysearch,'results' => $results]);
         }
@@ -737,25 +712,6 @@ class ApiControllerChampionship extends Controller
 
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100));
-            
-            // $results['listdata'] = HeatLine::where(function($query) use ($request) {
-            //         $query->whereRaw('code_data ILIKE ?', ["%{$request->keysearch}%"])
-            //         ->orWhereRaw('code_heat ILIKE ?', ["%{$request->keysearch}%"])
-            //         ->orWhereRaw('code_athlete ILIKE ?', ["%{$request->keysearch}%"])
-            //         ->orWhereRaw("CAST(line_number AS TEXT) ILIKE ?", ["%{$request->keysearch}%"])                    
-            //         ->orWhereRaw('best_time ILIKE ?', ["%{$request->keysearch}%"])
-            //         ->orWhereRaw('hasil ILIKE ?', ["%{$request->keysearch}%"])
-            //         ->orWhereRaw("CAST(ranking AS TEXT) ILIKE ?", ["%{$request->keysearch}%"]);
-            //     })
-            //     ->orderBy('ranking', 'ASC')
-            //     ->paginate($vd ?? 20);
-
-            // foreach($results['listdata'] as $key => $data){
-            //     // $results['count_used'][$data->code_data] = Barang::where('kode_jenis', $data->code_data)->count();
-            //     $results['count_used'][$data->code_data] = 0;      
-            //     $results['detail_heat'][$data->code_data] = Heat::where('code_data', $data->code_heat)->first(); 
-            //     $results['detail_atlet'][$data->code_data] = Atlet::where('code_data', $data->code_athlete)->first(); 
-            // }
                 
             $keysearch = $request->keysearch;
 

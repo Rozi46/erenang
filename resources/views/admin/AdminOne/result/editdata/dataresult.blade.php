@@ -25,7 +25,7 @@
 
 				<div class="col-md-12 bg_page_main form_action" line="form_action">
 					<div class="col-md-12 data_page">
-						<form method="post" name="form_data" enctype="multipart/form-data" action="/admin/saveresult">
+						<form method="post" name="form_data" enctype="multipart/form-data" action="/admin/saveresultlist">
 							{{ csrf_field() }}
 							<div class="row bg_data_page form_page content">
                                 <input type="text" name="code_data" value="{{$code_data}}" readonly="true" style="display:none;" />
@@ -66,8 +66,9 @@
                                             <th style="min-width:150px; text-align: center;">Best Time</th>
                                             <th style="min-width:150px; text-align: center;">Hasil</th>
                                             <th style="min-width:150px; text-align: center;">Foto Hasil</th>
-                                            <th style="min-width:150px; text-align: center;">Ranking</th>
-                                            <th style="min-width:150px; text-align: center;">Point</th>
+                                            <th style="min-width:150px; text-align: center;">Catatan</th>
+                                            <th style="min-width:50px; text-align: center;">Ranking</th>
+                                            <th style="min-width:50px; text-align: center;">Poin</th>
                                         </tr>
                                     </thead>
                                     <tbody line="list_data">
@@ -100,14 +101,7 @@
                         
                 $.get("/admin/listdataresult",{code_data:'{{$code_data}}',status_data:'Yes',code_championship:'{{$code_championship}}',code_event:'{{$code_event}}'},function(listdata){
                     $('[line="list_data"]').html(listdata);
-                });
-                
-
-
-
-
-
-
+                }); 
 
 				// Inisialisasi awal
 				$('button[name="btn_save"]').prop('disabled', true);
@@ -121,10 +115,9 @@
 
 				// Tombol Simpan
 				$('button[name="btn_save"]').click(function() {
-					// let nama_event = $('input[name="nama_event"]').val();
-					$('select[name="nama_mekanik"]').val(@json( array_keys($results['results']['detail_mekanik'] ?? [] ))).trigger('change'); 
+					let nama_event = $('input[name="nomor_lomba"]').val();
 					$('div[data-model="confirmasi"]').modal({backdrop: false});
-					$('div[data-model="confirmasi"] .modal-body').html('<div class="alert alert-warning">Anda yakin untuk simpan data ini?</div>');
+					$('div[data-model="confirmasi"] .modal-body').html('<div class="alert alert-warning">Anda yakin untuk simpan dan selesai data ini ' + nama_event + '?</div> <div class="form_input text-left"><div class="tag_title" style="color:#ED3237;">Setelah simpan dan selesai data ini tidak bisa diubah kembali</div></div>');
 					$('button[btn-action="action-confirmasi"]').remove();
 					$('button[btn-action="close-confirmasi"]').before('<button type="button" class="btn btn-primary btn-sm" btn-action="action-confirmasi">Yakin</button>');
 
@@ -136,35 +129,35 @@
 			});
 
 			// Fungsi cek input
-			// function checkFormInputs() {
-			// 	let isComplete = true;
-			// 	$('form :input').each(function () {
-			// 		if (
-			// 			$(this).is(':visible') &&
-			// 			!$(this).is(':disabled') &&
-			// 			$(this).attr('type') !== 'hidden' &&
-			// 			$(this).attr('type') !== 'button' &&
-			// 			$(this).attr('type') !== 'submit'
-			// 		) {
-			// 			if (!$(this).val().trim()) {
-			// 				isComplete = false;
-			// 				return false;
-			// 			}
-			// 		}
-			// 	});
-			// 	$('button[name="btn_save"]').prop('disabled', !isComplete);
-			// }
-
 			function checkFormInputs() {
-				let championship = $('#code_championship').val();
-				let event = $('#code_event').val();
-
-				let isComplete = championship && event;
+				let isComplete = true;
+				$('form :input').each(function () {
+					if (
+						$(this).is(':visible') &&
+						!$(this).is(':disabled') &&
+						$(this).attr('type') !== 'hidden' &&
+						$(this).attr('type') !== 'button' &&
+						$(this).attr('type') !== 'submit'
+					) {
+						if (!$(this).val().trim()) {
+							isComplete = false;
+							return false;
+						}
+					}
+				});
 				$('button[name="btn_save"]').prop('disabled', !isComplete);
 			}
 
-			// Jalankan pengecekan setiap kali dropdown berubah
-			$('#code_championship, #code_event').on('change', checkFormInputs);
+			// function checkFormInputs() {
+			// 	let championship = $('#code_championship').val();
+			// 	let event = $('#code_event').val();
+
+			// 	let isComplete = championship && event;
+			// 	$('button[name="btn_save"]').prop('disabled', !isComplete);
+			// }
+
+			// // Jalankan pengecekan setiap kali dropdown berubah
+			// $('#code_championship, #code_event').on('change', checkFormInputs);
 		</script>
 	@endsection
 

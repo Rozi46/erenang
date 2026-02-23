@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('db_athletes', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->string('code_data')->unique();
             $table->string('nis')->unique();
             $table->string('nama');
             $table->enum('gender', ['PA', 'PI']);

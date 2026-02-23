@@ -13,8 +13,11 @@ class Result extends Model
         'code_heatline',
         'code_athlete',
         'code_event',
-        'hasil',
+        'hasil',        
+        'foto',
         'ranking',
+        'poin',
+        'status_data',
         'catatan',
         'created_at',
         'updated_at'

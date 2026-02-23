@@ -1903,7 +1903,6 @@ button:click{
 	border:1px solid #E6E7E8;
 }
 
-
 #cke_deskripsi{
 	border-radius: 10px;
 }
@@ -1916,6 +1915,46 @@ button:click{
 #cke_1_bottom{
 	border-radius: 0px 0px 10px 10px;
 }
+
+.preview-foto{
+    cursor: zoom-in;
+    transition: transform .15s ease;
+}
+.preview-foto:hover{
+    transform: scale(1.04);
+}
+
+/* Warna Tulisan rangking */
+.rank-1 { background:linear-gradient(135deg,#FFD700,#FFC107); color:#000; font-weight:700; }
+.rank-2 { background:linear-gradient(135deg,#E0E0E0,#BDBDBD); color:#000; font-weight:700; }
+.rank-3 { background:linear-gradient(135deg,#D2691E,#8B4513); color:#fff; font-weight:700; }
+
+/* GLOBAL TOAST */
+#globalToast{
+    position:fixed;
+    top:70px;
+    right:15px;
+    z-index:9999;
+}
+
+.toast-system{
+    background:#222;
+    color:#fff;
+    padding:10px 16px;
+    border-radius:6px;
+    margin-top:10px;
+    box-shadow:0 4px 12px rgba(0,0,0,.25);
+    opacity:0;
+    transform:translateY(-10px);
+    transition:.25s;
+}
+.toast-system.show{
+    opacity:1;
+    transform:translateY(0);
+}
+.toast-success{background:#28a745;}
+.toast-danger{background:#dc3545;}
+.toast-info{background:#17a2b8;}
 
 @media (max-width:767px){
 	.page_main{

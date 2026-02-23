@@ -15,8 +15,6 @@
 										@if($level_user['inputresult'] == 'Yes')<a load="true" href="/admin/inputresult"><button type="button" class="btn btn-primary">Input Hasil Pertandingan</button></a>@endif
 
                                         @if($level_user['exportresult'] == 'Yes')<button type="button" class="btn btn-info back" onclick="exportdata('result')"><i class="fa fa-download"></i> Export Data</button>@endif
-
-										@if($level_user['exportresult'] == 'Yes')<button type="button" class="btn btn-success"><i class="fa fa-trophy"></i> Hitung Ranking & Poin</button>@endif
 									</div>
 								</div>
 							</div>
@@ -39,13 +37,15 @@
 													<th style="min-width:150px; text-align: center;">Kode Data</th>
 													<th style="min-width:150px; text-align: center;">Nama Kejuaraan</th>
 													<th style="min-width:150px; text-align: center;">Nomor Lomba</th>
-													<th style="min-width:150px; text-align: center;">Seri Lomba</th>
+													<th style="min-width:50px; text-align: center;">Seri Lomba</th>
 													<th style="min-width:150px; text-align: center;">Nama Atlet</th>
-													<th style="min-width:150px; text-align: center;">Line Number</th>
-													<th style="min-width:150px; text-align: center;">Best Time</th>
-													<th style="min-width:150px; text-align: center;">Hasil</th>
+													<th style="min-width:50px; text-align: center;">Line Number</th>
+													<th style="min-width:100px; text-align: center;">Best Time</th>
+													<th style="min-width:100px; text-align: center;">Hasil</th>
 													<th style="min-width:150px; text-align: center;">Foto Hasil</th>
-													<th style="min-width:150px; text-align: center;">Ranking</th>
+													<th style="min-width:150px; text-align: center;">Catatan</th>
+													<th style="min-width:50px; text-align: center;">Ranking</th>
+													<th style="min-width:50px; text-align: center;">Poin</th>
                                                     
 													<th class="colright" style="width:30px; text-align: center;"><i class="head fa fa-cog"></i></th>
 												</tr>
@@ -55,8 +55,6 @@
                                                     <?php 
                                                         $no++ ;
                                                     ?>
-
-                                                    {{ dd($view_data) }}
 
 													<script type="text/javascript">
 														$(document).ready(function(){
@@ -81,23 +79,19 @@
 													<tr>
 														<td style="text-align:center;">{{ $no }}</td>
 														<td style="text-align:center;">{{ $view_data['code_data'] ?? 'Belum ditentukan' }}</td>
-														<td style="text-align:center;">{{ $view_data['heat']['event']['championship']['nama_kejuaraan'] ?? 'Belum ditentukan' }}</td>
-														<td style="text-align:center;">{{ $view_data['heat']['event']['code_event'] ?? 'Belum ditentukan' }}</td>
-														<td style="text-align:center;">{{ number_format($view_data['heat']['nomor_seri'] ?? 0, 0,"",".") }}</td>														
-														<td style="text-align:left;">{{ $view_data['atlet']['nama'] ?? 'Belum ditentukan' }}</td>
-														<td style="text-align:center;">{{ number_format($view_data['line_number'] ?? 0, 0,"",".") }}</td>
-														<td style="text-align:center;">{{ $view_data['best_time'] ?? 'Belum ditentukan' }}</td>
-														<td style="text-align:center;">
-															<input type="text" name="new_hasil_{{$view_data['code_data']}}" value="{{ $view_data['hasil'] ?? '00:00.00' }}" placeholder="MM:SS.xx" style="width: 90px; text-align:center;" onKeyPress="return goodchars(event,'0123456789',this)" />
-														</td>
-														<!-- src="{{ $view_data['code_data'] ? asset('/themes/admin/AdminOne/image/public/'.$view_data['code_data']) : asset('/themes/admin/AdminOne/image/public/icon.png') }}"  -->
+														<td style="text-align:center;">{{ $view_data['event']['championship']['nama_kejuaraan'] ?? 'Belum ditentukan' }}</td>
+														<td style="text-align:center;">{{ $view_data['event']['code_event'] ?? 'Belum ditentukan' }}</td>
+														<td style="text-align:center;">{{ number_format($view_data['heat_line']['heat']['nomor_seri'] ?? 0, 0,"",".") }}</td>														
+														<td style="text-align:left;">{{ $view_data['atlet']['nama'] ?? 'Belum ditentukan' }}<br><div class="alert alert-success" style="margin: 0 auto; display: inline-block; text-align: center; font-size: 14px; padding: 2px 10px;"><strong>{{ $view_data['atlet']['club']['nama_club'] ?? 'Belum ditentukan' }}</strong></div></td>
+														<td style="text-align:center;">{{ number_format($view_data['heat_line']['line_number'] ?? 0, 0,"",".") }}</td>
+														<td style="text-align:center;">{{ $view_data['heat_line']['best_time'] ?? 'Belum ditentukan' }}</td>
+														<td style="text-align:center;">{{ $view_data['hasil'] ?? '00:00.00' }}</td>
                                                         <td style="text-align:center;">
-                                                            <img                                                                 
-																src="{{ asset('/themes/admin/AdminOne/image/no_image.png') }}"
-                                                                alt="foto" 
-                                                                style="width: 150px; height: 100px;">
+															<img src="{{ $view_data['foto'] ? asset('/themes/admin/AdminOne/image/upload/'.$view_data['foto']) : asset('/themes/admin/AdminOne/image/no_image.png') }}" class="preview-foto" data-id="{{$view_data['id']}}" style="width:150px;height:100px;object-fit:cover;cursor:pointer;border-radius:6px;border:1px solid #ddd;">
                                                         </td>
-														<td style="text-align:center;">{{ number_format($view_data['ranking'] ?? 0, 0,"",".") }}</td>
+														<td style="text-align:left;">{{ $view_data['catatan'] ?? '' }}</td>
+														<td class="@if(($view_data['ranking'] ?? 0) == 1) rank-1 @elseif(($view_data['ranking'] ?? 0) == 2) rank-2 @elseif(($view_data['ranking'] ?? 0) == 3) rank-3 @endif" style="text-align:center;">{{ number_format($view_data['ranking'] ?? 0, 0,"",".") }}</td>
+														<td style="text-align:center;">{{ number_format($view_data['poin'] ?? 0, 0,"",".") }}</td>
 
 														<td class="colright" style="text-align:center;">
 															<div class="dropdown dropleft">
@@ -105,7 +99,7 @@
 																<div class="dropdown-menu">
 																	<h5 class="dropdown-header">Pengaturan Data</h5>
 																	<a load="true" class="dropdown-item" href="/admin/editheatline?d={{$view_data['code_data']}}">Lihat/Ubah Data</a>
-																	<a class="dropdown-item @if($view_data['count_used'] > 0) disabled @endif @if($level_user['deleteheatline'] == 'No') disabled @endif" <?php if($view_data['count_used'] == 0){ if($level_user['deleteheatline'] == 'Yes'){ ?> btn="del_data_{{$view_data['code_data']}}"<?php } }?>>Hapus Data</a>
+																	<a class="dropdown-item @if($view_data['status_data'] = 'Finish') disabled @endif @if($level_user['deleteheatline'] == 'No') disabled @endif" <?php if($view_data['status_data'] == 'Finish'){ { ?> btn="del_data_{{$view_data['code_data']}}"<?php } }?>>Hapus Data</a>
 																</div>
 															</div>
 														</td>

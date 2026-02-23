@@ -36,6 +36,6 @@ class HeatLine extends Model
     
     public function result()
     {
-        return $this->hasMany(Result::class, 'code_data', 'code_data');
+        return $this->hasMany(Result::class, 'code_heatline', 'code_data');
     }
 }

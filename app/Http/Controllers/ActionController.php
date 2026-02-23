@@ -39,11 +39,12 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listresult'] == 'No' OR $level_user[0]['inputresult'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0]['menudatahasilpertandingan'] == 'No' OR $level_user[0]['inputresult'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'code_championship' => 'required|string|max:200',
                 'code_event'        => 'required|string|max:200',
+                'hasil_up'          => ['required','regex:/^\d{2}:\d{2}\.\d{2}$/']
             ]);
 
             $response[] = app('App\Http\Controllers\ApiControllerResult')->saveresult($request);  
@@ -57,6 +58,137 @@ class ActionController extends Controller
             return response()->json(['status_message' => $status,'note' => $note,'code_data' => $code_data]);
         }
     }
+
+    public function uploadfotoresult(Request $request)
+    {
+    	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
+    		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
+    	}else{
+            date_default_timezone_set('Asia/Jakarta');
+            $url_api =  env('APP_API');
+            $admin_login = session('admin_login_renang');
+            $key_token = session('key_token_renang');
+            $load_app = $request->load;
+            $request['u'] = $admin_login;
+            $request['token'] = $key_token;
+ 
+            $get_user = $this->get_user($request);         
+            if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
+            $res_user = $get_user['results'][0]['detailadmin'][0];
+            $res_level_user = $get_user['results'][0]['leveladmin'][0];
+            $nama_admin = substr($res_user['full_name'],0,15);
+            if(strlen($nama_admin) > 15){$nama_admin = $nama_admin."...";}
+            $request['nama_admin'] = $nama_admin;
+
+            $list_akses = $this->get_akses($request);
+            $level_user = array();
+            for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
+            array_push($level_user, $access_rights);
+
+            if($level_user[0]['menudatahasilpertandingan'] == 'No' OR $level_user[0]['inputresult'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            $response[] = app('App\Http\Controllers\ApiControllerResult')->uploadfotoresult($request);  
+            $response = collect($response)->toJson();
+            $response = json_decode($response,true);
+            $response = $response[0]['original'];
+            $status = $response['status_message'];
+            $note = $response['note'];
+            $code_data = $response['code_data'];
+
+            return response()->json(['status_message' => $status,'note' => $note,'code_data' => $code_data]);
+        }
+    }
+
+    public function savecatatan(Request $request)
+    {
+    	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
+    		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
+    	}else{
+            date_default_timezone_set('Asia/Jakarta');
+            $url_api =  env('APP_API');
+            $admin_login = session('admin_login_renang');
+            $key_token = session('key_token_renang');
+            $load_app = $request->load;
+            $request['u'] = $admin_login;
+            $request['token'] = $key_token;
+ 
+            $get_user = $this->get_user($request);         
+            if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
+            $res_user = $get_user['results'][0]['detailadmin'][0];
+            $res_level_user = $get_user['results'][0]['leveladmin'][0];
+            $nama_admin = substr($res_user['full_name'],0,15);
+            if(strlen($nama_admin) > 15){$nama_admin = $nama_admin."...";}
+            $request['nama_admin'] = $nama_admin;
+
+            $list_akses = $this->get_akses($request);
+            $level_user = array();
+            for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
+            array_push($level_user, $access_rights);
+
+            if($level_user[0]['menudatahasilpertandingan'] == 'No' OR $level_user[0]['inputresult'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            $response[] = app('App\Http\Controllers\ApiControllerResult')->savecatatan($request);  
+            $response = collect($response)->toJson();
+            $response = json_decode($response,true);
+            $response = $response[0]['original'];
+            $status = $response['status_message'];
+            $note = $response['note'];
+            $code_data = $response['code_data'];            
+
+            return response()->json(['status_message' => $status,'note' => $note,'code_data' => $code_data]);
+        }
+    }
+    public function saveresultlist(Request $request)
+    {
+    	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
+    		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
+    	}else{
+            date_default_timezone_set('Asia/Jakarta');
+            $url_api =  env('APP_API');
+            $admin_login = session('admin_login_renang');
+            $key_token = session('key_token_renang');
+            $load_app = $request->load;
+            $request['u'] = $admin_login;
+            $request['token'] = $key_token;
+ 
+            $get_user = $this->get_user($request);         
+            if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
+            $res_user = $get_user['results'][0]['detailadmin'][0];
+            $res_level_user = $get_user['results'][0]['leveladmin'][0];
+            $nama_admin = substr($res_user['full_name'],0,15);
+            if(strlen($nama_admin) > 15){$nama_admin = $nama_admin."...";}
+            $request['nama_admin'] = $nama_admin;
+
+            $list_akses = $this->get_akses($request);
+            $level_user = array();
+            for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
+            array_push($level_user, $access_rights);
+
+            if($level_user[0]['menudatahasilpertandingan'] == 'No' OR $level_user[0]['inputresult'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            $this->validate($request, [
+                'code_championship' => 'required|string|max:200',
+                'code_event'        => 'required|string|max:200'
+            ]);
+
+            $response[] = app('App\Http\Controllers\ApiControllerResult')->saveresultlist($request);  
+            $response = collect($response)->toJson();
+            $response = json_decode($response,true);
+            $response = $response[0]['original'];
+            $status = $response['status_message'];
+            $note = $response['note'];
+            $code_data = $response['code_data'];
+            $code_championship = $response['code_championship'];
+            $code_event = $response['code_event'];
+
+            if($status == 'success'){
+                return redirect('/admin/historyresult')->with($status,$note);
+            }else{
+                return redirect('/admin/viewresult?d=' . $code_data .'&code_championship=' . $code_championship .'&code_event=' . $code_event)->with($status, $note);
+            }
+        }
+    }
+
     // Pendaftaran
     public function saveregister(Request $request)
     {
@@ -186,15 +318,6 @@ class ActionController extends Controller
 
             if($level_user[0]['menuregister'] == 'No' OR $level_user[0]['editregister'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
-            // $this->validate($request, [
-            //     'nama_club'         => 'required|string|max:200',
-            //     'nama_atlet'        => 'required|string|max:200',
-            //     'nama_kejuaraan'    => 'required|string|max:200',
-            //     'code_event'        => 'required|array|min:1',
-            //     'code_event.*'      => 'string|max:200',
-            // ]);
-            
-            // $request['code_data'] = $request['nomor_pendaftaran'];
             $request['code_data'] = $request['d'];
             $response[] = app('App\Http\Controllers\ApiControllerRegister')->verifiedregister($request);  
             $response = collect($response)->toJson();
@@ -398,11 +521,7 @@ class ActionController extends Controller
             $status = $response['status_message'];
             $note = $response['note'];
 
-            if($status == 'success'){
-                return redirect('/admin/listchampionship')->with($status,$note);
-            }else{
-                return redirect('/admin/listchampionship')->with($status,$note);
-            }
+            return redirect('/admin/listchampionship')->with($status,$note);
         }
     }
 
@@ -551,11 +670,7 @@ class ActionController extends Controller
             $status = $response['status_message'];
             $note = $response['note'];
 
-            if($status == 'success'){
-                return redirect('/admin/listevent')->with($status,$note);
-            }else{
-                return redirect('/admin/listevent')->with($status,$note);
-            }
+            return redirect('/admin/listevent')->with($status,$note);
         }
     }
 
@@ -747,11 +862,7 @@ class ActionController extends Controller
             $status = $response['status_message'];
             $note = $response['note'];
 
-            if($status == 'success'){
-                return redirect('/admin/listatlet')->with($status,$note);
-            }else{
-                return redirect('/admin/listatlet')->with($status,$note);
-            }
+            return redirect('/admin/listatlet')->with($status,$note);
         }
     }
 
@@ -902,11 +1013,7 @@ class ActionController extends Controller
             $status = $response['status_message'];
             $note = $response['note'];
 
-            if($status == 'success'){
-                return redirect('/admin/listclub')->with($status,$note);
-            }else{
-                return redirect('/admin/listclub')->with($status,$note);
-            }
+            return redirect('/admin/listclub')->with($status,$note);
         }
     }
 
@@ -1051,11 +1158,7 @@ class ActionController extends Controller
             $status = $response['status_message'];
             $note = $response['note'];
 
-            if($status == 'success'){
-                return redirect('/admin/listkategori')->with($status,$note);
-            }else{
-                return redirect('/admin/listkategori')->with($status,$note);
-            }
+            return redirect('/admin/listkategori')->with($status,$note);
         }
     }   
 
@@ -1202,11 +1305,7 @@ class ActionController extends Controller
             $status = $response['status_message'];
             $note = $response['note'];
 
-            if($status == 'success'){
-                return redirect('/admin/listku')->with($status,$note);
-            }else{
-                return redirect('/admin/listku')->with($status,$note);
-            }
+            return redirect('/admin/listku')->with($status,$note);
         }
     } 
 
@@ -1396,11 +1495,7 @@ class ActionController extends Controller
             $status = $response['status_message'];
             $note = $response['note'];
 
-            if($status == 'success'){
-                return redirect('/admin/listsupplier')->with($status,$note);
-            }else{
-                return redirect('/admin/listsupplier')->with($status,$note);
-            }
+            return redirect('/admin/listsupplier')->with($status,$note);
         }
     }  
 
@@ -1912,11 +2007,7 @@ class ActionController extends Controller
             $status = $response['status_message'];
             $note = $response['note'];
 
-            if($status == 'success'){
-                return redirect('/admin/editcompany?d='.$request->id_data)->with($status,$note);
-            }else{
-                return redirect('/admin/editcompany?d='.$request->id_data)->with($status,$note);
-            }
+            return redirect('/admin/editcompany?d='.$request->id_data)->with($status,$note);
         }
     }
 
@@ -1945,12 +2036,8 @@ class ActionController extends Controller
             $response = $response[0]['original'];
             $status = $response['status_message'];
             $note = $response['note'];
-
-            if($status == 'success'){
-                return redirect('/admin/listcompany')->with($status,$note);
-            }else{
-                return redirect('/admin/listcompany')->with($status,$note);
-            }
+                
+            return redirect('/admin/listcompany')->with($status,$note);
         }
     }  
 
@@ -1983,7 +2070,6 @@ class ActionController extends Controller
             }else{
                 return redirect("/admin/manualbook")->with($status,$note);
                 // return redirect("/admin/manualbook?d=" . urlencode(json_encode($response['results'])))->with($status, $note);
-
             }
         }
     }

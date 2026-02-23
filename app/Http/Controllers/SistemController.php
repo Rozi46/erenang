@@ -342,7 +342,7 @@ class SistemController extends Controller
     }
 
     // Hasil Pertandingan
-    public function listresult(Request $request)
+    public function menudatahasilpertandingan(Request $request)
     {
     	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
     		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
@@ -355,7 +355,7 @@ class SistemController extends Controller
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
             $request['app'] = 'menuhasilpertandingan';
-            $request['url_active'] = 'listresult';
+            $request['url_active'] = 'menudatahasilpertandingan';
             $viewpath = 'admin.AdminOne.result.listdata.dataresult';
 
             $get_user = $this->get_user($request);           
@@ -383,7 +383,7 @@ class SistemController extends Controller
             $vd = max(1, min($vd, 100));
             $request['vd'] = $vd;
             
-            $results[] = app('App\Http\Controllers\ApiControllerResult')->listresult($request);  
+            $results[] = app('App\Http\Controllers\ApiControllerResult')->menudatahasilpertandingan($request);  
             $results = collect($results)->toJson();
             $results = json_decode($results,true);
             $results = $results[0]['original'];        
@@ -408,7 +408,7 @@ class SistemController extends Controller
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
             $request['app'] = 'menuhasilpertandingan';
-            $request['url_active'] = 'listresult';
+            $request['url_active'] = 'menudatahasilpertandingan';
 
             $get_user = $this->get_user($request);           
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -453,7 +453,7 @@ class SistemController extends Controller
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
             $request['app'] = 'menuhasilpertandingan';
-            $request['url_active'] = 'listresult';
+            $request['url_active'] = 'menudatahasilpertandingan';
             $viewpath = 'admin.AdminOne.result.newdata.dataresult';
 
             $get_user = $this->get_user($request);           
@@ -496,7 +496,7 @@ class SistemController extends Controller
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
             $request['app'] = 'menuhasilpertandingan';
-            $request['url_active'] = 'listresult';
+            $request['url_active'] = 'menudatahasilpertandingan';
 
             $get_user = $this->get_user($request);           
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -560,7 +560,7 @@ class SistemController extends Controller
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
             $request['app'] = 'menuhasilpertandingan';
-            $request['url_active'] = 'listresult';
+            $request['url_active'] = 'menudatahasilpertandingan';
             $viewpath = 'admin.AdminOne.result.editdata.dataresult';
 
             $get_user = $this->get_user($request);           
@@ -616,7 +616,7 @@ class SistemController extends Controller
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
             $request['app'] = 'menuhasilpertandingan';
-            $request['url_active'] = 'listresult';
+            $request['url_active'] = 'menudatahasilpertandingan';
 
             $get_user = $this->get_user($request);           
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -644,9 +644,7 @@ class SistemController extends Controller
                 $results[] = app('App\Http\Controllers\ApiControllerResult')->viewresult($request);  
                 $results = collect($results)->toJson();
                 $results = json_decode($results,true);
-                $results = $results[0]['original'];        
-
-                // dd($results);
+                $results = $results[0]['original'];   
 
                 if($results['note'] == 'Tidak ada akses'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 

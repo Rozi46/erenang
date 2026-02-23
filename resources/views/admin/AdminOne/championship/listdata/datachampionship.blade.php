@@ -86,7 +86,7 @@
 																<div class="dropdown-menu">
 																	<h5 class="dropdown-header">Pengaturan Data</h5>
 																	<a load="true" class="dropdown-item" href="/admin/editchampionship?d={{$view_data['code_data']}}">Lihat/Ubah Data</a>
-																	<a class="dropdown-item @if($listdata['count_used'][$view_data['code_data']] > 0) disabled @endif @if($level_user['deletechampionship'] == 'No') disabled @endif" <?php if($listdata['count_used'][$view_data['code_data']] == 0){ if($level_user['deletechampionship'] == 'Yes'){ ?> btn="del_data_{{$view_data['code_data']}}"<?php } }?>>Hapus Data</a>
+																	<a class="dropdown-item @if($view_data['count_used'] > 0) disabled @endif @if($level_user['deletechampionship'] == 'No') disabled @endif" <?php if($view_data['count_used'] == 0){ if($level_user['deletechampionship'] == 'Yes'){ ?> btn="del_data_{{$view_data['code_data']}}"<?php } }?>>Hapus Data</a>
 																</div>
 															</div>
 														</td>
