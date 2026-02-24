@@ -17,6 +17,7 @@ class Event extends Model
         'gender',
         'tanggal',
         'code_kejuaraan',
+        'status_data',
         'created_at',
         'updated_at'
     ];
@@ -53,5 +54,17 @@ class Event extends Model
     public function result()
     {
         return $this->hasMany(Result::class, 'code_event', 'code_data');
+    }
+
+    public function heatLines()
+    {
+        return $this->hasManyThrough(
+            HeatLine::class,
+            Heat::class,
+            'code_event', // FK di heats
+            'code_heat',  // FK di heat_lines
+            'code_data',  // PK event
+            'code_data'   // PK heat
+        );
     }
 }

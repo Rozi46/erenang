@@ -98,7 +98,7 @@
 																<button type="button" class="btn dropdown-toggle" data-toggle="dropdown">Atur</button>
 																<div class="dropdown-menu">
 																	<h5 class="dropdown-header">Pengaturan Data</h5>
-																	<a load="true" class="dropdown-item" href="/admin/editheatline?d={{$view_data['code_data']}}">Lihat/Ubah Data</a>
+																	<a load="true" class="dropdown-item" href="/admin/viewresult?d={{$view_data['code_data']}}&code_championship={{$view_data['event']['championship']['code_data']}}&code_event={{$view_data['event']['code_data']}}">Lihat/Ubah Data</a>
 																	<a class="dropdown-item @if($view_data['status_data'] = 'Finish') disabled @endif @if($level_user['deleteheatline'] == 'No') disabled @endif" <?php if($view_data['status_data'] == 'Finish'){ { ?> btn="del_data_{{$view_data['code_data']}}"<?php } }?>>Hapus Data</a>
 																</div>
 															</div>

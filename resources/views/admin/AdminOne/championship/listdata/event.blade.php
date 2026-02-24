@@ -43,7 +43,10 @@
 													<th style="min-width:200px; text-align: center;">Nama Lomba</th>
 													<th style="min-width:150px; text-align: center;">Waktu Pelaksanaan</th>
 													<th style="min-width:200px; text-align: center;">Nama Kejuaraan</th>
+													<th style="min-width:100px; text-align: center;">Jumlah Peserta</th>
 													<th style="min-width:200px; text-align: center;">Generate Heat</th>
+													<th style="min-width:150px; text-align: center;">Status</th>
+													<th style="min-width:150px; text-align: center;">Aksi</th>
                                                     
 													<th class="colright" style="width:30px; text-align: center;"><i class="head fa fa-cog"></i></th>
 												</tr>
@@ -115,8 +118,8 @@
 														<td >{{ $hasil }}</td>
                                                         <td style="text-align:center;">{{ !empty($view_data['tanggal']) ? Carbon::parse($view_data['tanggal'])->translatedFormat('d F Y') : 'Belum ditentukan' }}</td>
 														<td style="text-align:center;">{{ $view_data['championship']['nama_kejuaraan'] ?? 'Belum ditentukan' }}</td>
+														<td style="text-align:center;">{{ number_format($view_data['heat_lines_count'] ?? 0, 0,"",".") }}</td>
 														<td style="text-align:center;">
-															<button class="btn btn-info" btn="generateHeat_{{$view_data['code_data']}}">Generate Heat & Line</button><br>
 															@if($view_data['count_used'] == 0)
 																<div class="alert alert-warning" style="margin: 0 auto; display: inline-block; text-align: center; font-size: 14px; padding: 2px 10px;">
 																	<strong>Belum Generate</strong>
@@ -127,7 +130,22 @@
 																</div>
 															@endif
 														</td>
-
+														<td style="text-align:center;">
+															@if($view_data['status_data'] == 'Proses')
+																<div class="alert alert-warning" style="margin: 0 auto; display: inline-block; text-align: center; font-size: 14px; padding: 2px 10px;">
+																	<strong>{{ $view_data['status_data'] ?? 'Belum Ditentukan'}}</strong>
+																</div>
+															@elseif($view_data['status_data'] == 'Finish')
+																<div class="alert alert-success" style="margin: 0 auto; display: inline-block; text-align: center; font-size: 14px; padding: 2px 10px;">
+																	<strong>{{ $view_data['status_data'] ?? 'Belum Ditentukan'}}</strong>
+																</div>
+															@else
+																<div class="alert alert-danger" style="margin: 0 auto; display: inline-block; text-align: center; font-size: 14px; padding: 2px 10px;">
+																	<strong>{{ $view_data['status_data'] ?? 'Belum Ditentukan'}}</strong>
+																</div>
+															@endif
+														</td>
+														<td style="text-align:center;"><button class="btn btn-info" btn="generateHeat_{{$view_data['code_data']}}" @if($view_data['status_data'] == 'Finish') disabled @endif>Generate Heat & Line</button></td>
 														<td class="colright" style="text-align:center;">
 															<div class="dropdown dropleft">
 																<button type="button" class="btn dropdown-toggle" data-toggle="dropdown">Atur</button>

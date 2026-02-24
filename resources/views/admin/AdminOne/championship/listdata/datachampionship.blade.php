@@ -44,6 +44,7 @@
 													<th style="min-width:150px; text-align: center;">Lokasi</th>
 													<th style="min-width:100px; text-align: center;">Jumlah Line</th>
 													<th style="min-width:200px; text-align: center;">Waktu Pelaksanaan</th>
+													<th style="min-width:100px; text-align: center;">Status</th>
 													<th class="colright" style="width:30px; text-align: center;"><i class="head fa fa-cog"></i></th>
 												</tr>
 											</thead>
@@ -79,6 +80,21 @@
 														<td style="text-align:center;">{{$view_data['lokasi'] ?? 'Belum ditentukan'}}</td>
 														<td style="text-align:center;">{{isset($view_data['jumlah_line']) ? number_format($view_data['jumlah_line'], 0, ',', '') : 'Belum ditentukan'}}</td>
                                                         <td style="text-align:center;">{{!empty($view_data['tanggal_mulai']) ? Carbon::parse($view_data['tanggal_mulai'])->translatedFormat('d F Y') : 'Belum ditentukan'}} s.d {{!empty($view_data['tanggal_selesai']) ? Carbon::parse($view_data['tanggal_selesai'])->translatedFormat('d F Y') : 'Belum ditentukan'}}</td>
+														<td style="text-align:center;">
+															@if($view_data['status_data'] == 'Proses')
+																<div class="alert alert-warning" style="margin: 0 auto; display: inline-block; text-align: center; font-size: 14px; padding: 2px 10px;">
+																	<strong>{{ $view_data['status_data'] ?? 'Belum Ditentukan'}}</strong>
+																</div>
+															@elseif($view_data['status_data'] == 'Finish')
+																<div class="alert alert-success" style="margin: 0 auto; display: inline-block; text-align: center; font-size: 14px; padding: 2px 10px;">
+																	<strong>{{ $view_data['status_data'] ?? 'Belum Ditentukan'}}</strong>
+																</div>
+															@else
+																<div class="alert alert-danger" style="margin: 0 auto; display: inline-block; text-align: center; font-size: 14px; padding: 2px 10px;">
+																	<strong>{{ $view_data['status_data'] ?? 'Belum Ditentukan'}}</strong>
+																</div>
+															@endif
+														</td>
 
 														<td class="colright" style="text-align:center;">
 															<div class="dropdown dropleft">

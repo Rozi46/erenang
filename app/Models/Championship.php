@@ -15,6 +15,7 @@ class Championship extends Model
         'jumlah_line',
         'tanggal_mulai',
         'tanggal_selesai',
+        'status_data',
         'created_at',
         'updated_at'
     ];

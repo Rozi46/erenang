@@ -12,12 +12,10 @@
 								<div class="row">
 									<div class="col-xl-12 col_act_page_main text-left">
 										<button type="button" class="btn btn-default back" onclick="BackPage()"><i class="fa fa-chevron-left"></i> Kembali</button>
-										@if($level_user['editchampionship'] == 'Yes')<button type="button" class="btn btn-primary" name="btn_save">Simpan Data</button>@endif
                                         
-                                        @if($results['count_used'] == '0') 
-											@if($level_user['deletechampionship'] == 'Yes')<button type="button" class="btn btn-danger" name="btn_del" onclick="DeleteData()">Hapus Data</button>@endif
-										@endif
+                                        @if($level_user['editchampionship'] == 'Yes' && $results['results']['championship']['status_data'] != 'Finish')<button type="button" class="btn btn-primary" name="btn_save">Simpan Data</button> @endif
                                         
+                                        @if($results['count_used'] == 0 && $level_user['deletechampionship'] == 'Yes')<button type="button" class="btn btn-danger" name="btn_del" onclick="DeleteData()">Hapus Data</button>@endif                                        
 									</div>
 								</div>
 							</div>

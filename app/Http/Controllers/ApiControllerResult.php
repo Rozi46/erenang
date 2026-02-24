@@ -546,6 +546,11 @@ class ApiControllerResult extends Controller
                         'poin'    => 0
                     ]);
 
+                Event::where('code_data', $codeEvent)
+                    ->update([
+                        'status_data' => 'Finish'
+                    ]);
+
                 $otpAct = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 1);
                 $newCodeData_activity = ltrim(Carbon::now()->format('YmdHis') . $otpAct, '0');
 

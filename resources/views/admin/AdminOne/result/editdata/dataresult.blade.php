@@ -14,10 +14,8 @@
 								<button type="button" class="btn btn-default back" onclick="BackPage()"><i class="fa fa-chevron-left"></i> Kembali</button>
 								@if($level_user['historyresult'] == 'Yes')
 									<a href="/admin/historyresult"><button type="button" class="btn btn-success" btn="history_data">History Hasil Pertandingan</button></a>
-								@endif
-								@if($level_user['inputresult'] == 'Yes')
-									<button type="button" class="btn btn-primary" name="btn_save">Simpan Data & Selesai</button>
-								@endif
+								@endif	
+								@if($level_user['inputresult'] == 'Yes' && $results['results']['detail_championship']['status_data'] != 'Finish')<button type="button" class="btn btn-primary" name="btn_save">Simpan Data</button> @endif
 							</div>
 						</div>
 					</div>
@@ -147,17 +145,6 @@
 				});
 				$('button[name="btn_save"]').prop('disabled', !isComplete);
 			}
-
-			// function checkFormInputs() {
-			// 	let championship = $('#code_championship').val();
-			// 	let event = $('#code_event').val();
-
-			// 	let isComplete = championship && event;
-			// 	$('button[name="btn_save"]').prop('disabled', !isComplete);
-			// }
-
-			// // Jalankan pengecekan setiap kali dropdown berubah
-			// $('#code_championship, #code_event').on('change', checkFormInputs);
 		</script>
 	@endsection
 
