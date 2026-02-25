@@ -4,6 +4,7 @@
         $no++;
         $id = str_replace('-','',$view_data['id']);
     ?>
+
     <tr>
         <td style="text-align:center;">{{ $no }}</td>
         <td style="text-align:center;">{{ number_format($view_data['heat_line']['heat']['nomor_seri'],0,"","") }}</td>
@@ -12,23 +13,33 @@
 		<td style="text-align:center;">{{ $view_data['heat_line']['best_time'] ?? 'Belum ditentukan' }}</td>
 
         {{-- INPUT HASIL --}}
-        <td style="text-align:center;">
-            <input type="text" class="input-hasil" data-id="{{$id}}" data-code="{{$view_data['code_data']}}" data-athlete="{{$view_data['atlet']['code_data']}}" value="{{$view_data['hasil']}}" style="width:95px;text-align:center;" placeholder="00:00.00"maxlength="8" >
-        </td>
+        @if($level_user['inputresult'] == 'Yes' && $view_data['status_data'] != 'Finish')         
+            <td style="text-align:center;">
+                <input type="text" class="input-hasil" data-id="{{$id}}" data-code="{{$view_data['code_data']}}" data-athlete="{{$view_data['atlet']['code_data']}}" value="{{$view_data['hasil']}}" style="width:95px;text-align:center;" placeholder="00:00.00"maxlength="8" >
+            </td>         
+        @else  
+		    <td style="text-align:center;">{{ $view_data['hasil'] ?? '00:00.00' }}</td>
+        @endif
 
         {{-- FOTO --}}
         <td style="text-align:center;">
             <img src="{{ $view_data['foto'] ? asset('/themes/admin/AdminOne/image/upload/'.$view_data['foto']) : asset('/themes/admin/AdminOne/image/no_image.png') }}" class="preview-foto" data-id="{{$id}}" style="width:150px;height:100px;object-fit:cover;cursor:pointer;border-radius:6px;border:1px solid #ddd;">
             <input type="file" class="input-foto" data-id="{{$id}}" accept="image/*" style="display:none;" >
-            <div style="margin-top:6px;">
-                <button type="button" class="btn btn-info btn-sm btn-upload-foto" data-id="{{$id}}"> Upload Foto </button>
-            </div>
+                @if($level_user['inputresult'] == 'Yes' && $view_data['status_data'] != 'Finish')  
+                    <div style="margin-top:6px;">
+                        <button type="button" class="btn btn-info btn-sm btn-upload-foto" data-id="{{$id}}"> Upload Foto </button>
+                    </div> 
+                @endif
         </td>
 
         {{-- INPUT CATATAN --}}
-        <td style="text-align:center;">
-            <input type="text" class="input-catatan" data-id="{{$id}}" data-code="{{$view_data['code_data']}}" data-athlete="{{$view_data['atlet']['code_data']}}" value="{{ $view_data['catatan'] ?? '' }}" style="width:100px;text-align:center;" maxlength="3" placeholder="DNF/DSQ/NS">
-        </td>
+        @if($level_user['inputresult'] == 'Yes' && $view_data['status_data'] != 'Finish')  
+            <td style="text-align:center;">
+                <input type="text" class="input-catatan" data-id="{{$id}}" data-code="{{$view_data['code_data']}}" data-athlete="{{$view_data['atlet']['code_data']}}" value="{{ $view_data['catatan'] ?? '' }}" style="width:100px;text-align:center;" maxlength="3" placeholder="DNF/DSQ/NS">
+            </td>        
+        @else  
+		    <td style="text-align:center;">{{ $view_data['catatan'] ?? '' }}</td>
+        @endif
 
         <td class="@if(($view_data['ranking'] ?? 0) == 1) rank-1 @elseif(($view_data['ranking'] ?? 0) == 2) rank-2 @elseif(($view_data['ranking'] ?? 0) == 3) rank-3 @endif" style="text-align:center;">{{ number_format($view_data['ranking'] ?? 0, 0,"",".") }}</td>
 		<td style="text-align:center;">{{ number_format($view_data['poin'] ?? 0, 0,"",".") }}</td>

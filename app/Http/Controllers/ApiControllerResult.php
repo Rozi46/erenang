@@ -56,7 +56,7 @@ class ApiControllerResult extends Controller
     }
 
     // Hasil Pertandingan
-    public function menudatahasilpertandingan(Request $request)
+    public function historyresult(Request $request)
     {
         date_default_timezone_set('Asia/Jakarta');
         $object = [];
@@ -81,28 +81,80 @@ class ApiControllerResult extends Controller
             $vd = max(1, min($vd, 100));    
             $keysearch = $request->keysearch;      
 
-            $results['listdata'] = Result::with(['heatLine.heat', 'atlet.club', 'event.championship'])
+            // $results['listdata'] = Result::with(['heatLine.heat', 'atlet.club', 'event.championship'])
+            //     ->when($keysearch, function ($query) use ($keysearch) {
+            //         $query->where(function ($q) use ($keysearch) {
+            //             $q->where('code_data', 'ILIKE', "%{$keysearch}%")
+            //             ->orWhere('hasil', 'ILIKE', "%{$keysearch}%")
+            //             ->orWhere('ranking', 'ILIKE', "%{$keysearch}%")
+            //             ->orWhere('catatan', 'ILIKE', "%{$keysearch}%")                        
+            //             ->orWhereHas('atlet', function ($qa) use ($keysearch) {
+            //                 $qa->where('nama', 'ILIKE', "%{$keysearch}%");
+            //             })
+            //             ->orWhereHas('event', function ($qb) use ($keysearch) {
+            //                 $qb->where('code_event', 'ILIKE', "%{$keysearch}%");
+            //             })
+            //             ->orWhereHas('heatline', function ($qc) use ($keysearch) {
+            //                 $qc->where('best_time', 'ILIKE', "%{$keysearch}%");
+            //             });
+            //         });
+            //     })
+            //     ->orderBy('ranking', 'ASC')
+            //     ->paginate($vd ?? 20);
+
+            $results['listdata'] = \App\Models\Result::with(['heatLine.heat','event.championship'])
                 ->when($keysearch, function ($query) use ($keysearch) {
                     $query->where(function ($q) use ($keysearch) {
-                        $q->where('code_data', 'ILIKE', "%{$keysearch}%")
-                        ->orWhere('hasil', 'ILIKE', "%{$keysearch}%")
-                        ->orWhere('ranking', 'ILIKE', "%{$keysearch}%")
-                        ->orWhere('catatan', 'ILIKE', "%{$keysearch}%")                        
-                        ->orWhereHas('atlet', function ($qa) use ($keysearch) {
-                            $qa->where('nama', 'ILIKE', "%{$keysearch}%");
-                        })
-                        ->orWhereHas('event', function ($qb) use ($keysearch) {
-                            $qb->where('code_event', 'ILIKE', "%{$keysearch}%");
-                        })
-                        ->orWhereHas('heatline', function ($qc) use ($keysearch) {
-                            $qc->where('best_time', 'ILIKE', "%{$keysearch}%");
+                        $q->whereHas('event', function ($qe) use ($keysearch) {
+                            $qe->where('code_event', 'ILIKE', "%{$keysearch}%")
+                            ->orWhereHas('championship', function ($qc) use ($keysearch) {
+                                $qc->where('nama_kejuaraan', 'ILIKE', "%{$keysearch}%");
+                            });
                         });
                     });
                 })
-                ->orderBy('ranking', 'ASC')
+                ->select('code_event','code_data') // grouping event
+                ->groupBy('code_event','code_data')
+                ->orderBy('code_event')
                 ->paginate($vd ?? 20);
+
+            foreach($results['listdata'] as $key => $data){ 
+                $code_event = $data->code_event;
+
+                $results['listdata_result'] = Result::with(['heatLine.heat','atlet.club','event.championship'])
+                    ->where('code_event', $code_event)
+                    ->orderBy('ranking', 'ASC')
+                    ->get();
+            }
                 
             return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','count_all_data' => $results['listdata']->total(),'count_view_data' => $vd,'keysearch' => $request->keysearch,'results' => $results]);
+        }
+    }
+
+    public function detailResult(Request $request)
+    {
+        date_default_timezone_set('Asia/Jakarta');
+        $object = [];
+        $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
+        if(!$viewadmin){ 
+            return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan saat proses data']);
+        }else{
+            $level_menu = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','menuhasilpertandingan')->first();
+            $level_sub_menu = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','menudatahasilpertandingan')->first();
+            $level_action = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','exportresult')->first();
+
+            if($level_menu->access_rights == 'No' OR $level_sub_menu->access_rights == 'No'){
+                return response()->json(['status_message' => 'error','note' => 'Tidak ada akses','results' => $object]);
+            }
+
+            $code_event = $request->code_event;
+
+            $getdata = Result::with(['heatLine.heat','atlet.club','event.championship'])
+                ->where('code_event', $code_event)
+                ->orderBy('ranking')
+                ->get();
+
+            return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','results' => $getdata]);
         }
     }
 
@@ -567,6 +619,46 @@ class ApiControllerResult extends Controller
             } catch (\Exception $e) {
                 DB::rollBack();
                 return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan: ' . $e->getMessage(),'code_data' => $codeData,'code_championship' => $codeChampionship,'code_event' => $codeEvent], 500);
+            }
+        }
+    }
+
+    public function printresult(Request $request)
+    {
+        date_default_timezone_set('Asia/Jakarta');
+        $object = [];
+        $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
+        if(!$viewadmin){ 
+            return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan saat proses data']);
+        }else{
+            $level_menu = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','menudatahasilpertandingan')->first();
+            $level_action = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','historyresult')->first();
+            
+            if($level_menu->access_rights == 'No' OR $level_action->access_rights == 'No'){
+                return response()->json(['status_message' => 'error','note' => 'Tidak ada akses','results' => $object]);
+            }            
+                        
+            $getdata['championship'] = Championship::with(['event'])->where('code_data', $request->code_data)->first();
+            $code_championship = $request->code_data;
+            if(!$getdata['championship']){
+                return response()->json(['status_message' => 'failed','note' => 'Data tidak ditemukan','results' => $object]);
+            }else{
+                $getdata['detail_perusahaan'] = Company::where('code_data', $viewadmin->code_company)->first();
+
+                $getdata['events'] = Event::with([
+                        'championship:id,code_data,nama_kejuaraan',
+                        'kategori:id,code_data,nama_gaya',
+                        'kelompokUmur:id,code_data,nama_kelompok',
+                        'result' => fn($q) => $q->orderBy('ranking'),
+                        'result.atlet.club',
+                        'result.heatLine'
+                    ])
+                    ->where('code_kejuaraan', $code_championship)
+                    ->orderBy('tanggal')
+                    ->orderBy('code_event')
+                    ->get();
+
+                return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','results' => $getdata]);
             }
         }
     }

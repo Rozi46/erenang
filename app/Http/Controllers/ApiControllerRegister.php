@@ -172,21 +172,21 @@ class ApiControllerRegister extends Controller
                 ->orWhereRaw('code_event::text ILIKE ?', ["%{$request->keysearch}%"])  // bertipe JSON
                 ->orWhereRaw('status ILIKE ?', ["%{$request->keysearch}%"]);
             })
-            ->orderBy('created_at', 'ASC')
+            ->orderByDesc('created_at')
             ->paginate($vd ?? 20);
 
+            $count_used = 0;
             foreach($results['listdata'] as $key => $data){
-                // $results['count_used'][$data->code_data] = Event::where('code_kejuaraan', $data->code_data)->count();
-                $results['count_used'][$data->code_data] = 0;
+                $count_used = ($data->status === 'pending') ? 0 : 1;
+                $results['count_used'][$data->code_data] = $count_used;
                 $results['detail_champion'][$data->code_data] = Championship::where('code_data', $data->code_champion)->first();
                 $results['detail_atlet'][$data->code_data] = Atlet::where('code_data', $data->code_athlete)->first();
                 $results['detail_club'][$data->code_data] = Club::where('code_data', $results['detail_atlet'][$data->code_data]->code_club)->first();   
 
-                //EVENT (JSON ARRAY)
                 $eventCodes = is_array($data->code_event)
                     ? $data->code_event
                     : json_decode($data->code_event, true);
-                // Ambil event + KU sekaligus
+                
                 $results['detail_event'][$data->code_data] =
                     Event::with('kelompokUmur')
                         ->whereIn('code_data', $eventCodes)
@@ -369,5 +369,44 @@ class ApiControllerRegister extends Controller
             }
         } 
     }
-    
+
+    public function printbook(Request $request)
+    {
+        date_default_timezone_set('Asia/Jakarta');
+        $object = [];
+        $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
+        if(!$viewadmin){ 
+            return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan saat proses data']);
+        }else{
+            $level_menu = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','menudatahasilpertandingan')->first();
+            $level_action = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','historyresult')->first();
+            
+            if($level_menu->access_rights == 'No' OR $level_action->access_rights == 'No'){
+                return response()->json(['status_message' => 'error','note' => 'Tidak ada akses','results' => $object]);
+            }            
+                        
+            $getdata['championship'] = Championship::with(['event'])->where('code_data', $request->code_data)->first();
+            $code_championship = $request->code_data;
+            if(!$getdata['championship']){
+                return response()->json(['status_message' => 'failed','note' => 'Data tidak ditemukan','results' => $object]);
+            }else{
+                $getdata['detail_perusahaan'] = Company::where('code_data', $viewadmin->code_company)->first();
+
+                $getdata['events'] = Event::with([
+                        'kategori:id,code_data,nama_gaya',
+                        'kelompokUmur:id,code_data,code_kelompok,nama_kelompok',
+                        'heatLines.heat',          
+                        'heatLines.atlet.club',
+                        'heatLines.result'
+                    ])
+                    ->where('code_kejuaraan', $code_championship)
+                    ->orderBy('tanggal')
+                    ->orderBy('code_event')
+                    ->get()
+                    ->groupBy('tanggal');
+
+                return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','results' => $getdata]);
+            }
+        }
+    }
 }

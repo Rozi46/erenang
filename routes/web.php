@@ -35,8 +35,8 @@ Route::get('/admin/dash',[\App\Http\Controllers\SistemController::class, 'dash']
 	Route::get('/admin/deletechampionship',[\App\Http\Controllers\ActionController::class, 'deletechampionship']);
 	
 	// Data Hasil Pertandingan
-	Route::get('/admin/menudatahasilpertandingan',[\App\Http\Controllers\SistemController::class, 'menudatahasilpertandingan']);
-	Route::get('/admin/historyresult',[\App\Http\Controllers\SistemController::class, 'menudatahasilpertandingan']);
+	Route::get('/admin/menudatahasilpertandingan',[\App\Http\Controllers\SistemController::class, 'historyresult']);
+	Route::get('/admin/historyresult',[\App\Http\Controllers\SistemController::class, 'historyresult']);
 	Route::get('/admin/inputresult',[\App\Http\Controllers\SistemController::class, 'inputresult']);
 	Route::get('/admin/geteventresult',[\App\Http\Controllers\SistemController::class, 'getopeventresult']);
 	Route::get('/admin/listdataevent',[\App\Http\Controllers\SistemController::class, 'listdataevent']);
@@ -46,6 +46,8 @@ Route::get('/admin/dash',[\App\Http\Controllers\SistemController::class, 'dash']
 	Route::post('/admin/uploadfotoresult',[\App\Http\Controllers\ActionController::class, 'uploadfotoresult']);
 	Route::post('/admin/savecatatan',[\App\Http\Controllers\ActionController::class, 'savecatatan']);
 	Route::post('/admin/saveresultlist',[\App\Http\Controllers\ActionController::class, 'saveresultlist']);
+	Route::get('/admin/detailresult',[\App\Http\Controllers\ApiControllerResult::class, 'detailresult']);
+	Route::get('/admin/printresult',[\App\Http\Controllers\SistemController::class, 'printresult']);
 
 	// Data Pendafataran
 	Route::get('/admin/menuregister',[\App\Http\Controllers\SistemController::class, 'menuregister']);
@@ -57,6 +59,7 @@ Route::get('/admin/dash',[\App\Http\Controllers\SistemController::class, 'dash']
 	Route::post('/admin/editregister',[\App\Http\Controllers\ActionController::class, 'editregister']);
 	Route::post('/admin/verifiedregister',[\App\Http\Controllers\ActionController::class, 'verifiedregister']);
 	Route::post('/admin/rejectedregister',[\App\Http\Controllers\ActionController::class, 'rejectedregister']);
+	Route::get('/admin/printbook',[\App\Http\Controllers\SistemController::class, 'printbook']);
 
 	// Event
 	Route::get('/admin/listevent',[\App\Http\Controllers\SistemController::class, 'listevent']);

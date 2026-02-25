@@ -62,7 +62,7 @@ class ApiControllerChampionship extends Controller
                     ->orWhereRaw('nama_kejuaraan ILIKE ?', ["%{$request->keysearch}%"])
                     ->orWhereRaw('lokasi ILIKE ?', ["%{$request->keysearch}%"]);
                 })
-                ->orderBy('nama_kejuaraan', 'ASC')
+                ->orderByDesc('created_at')
                 ->paginate($vd ?? 20);
                 
             return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','count_all_data' => $results['listdata']->total(),'count_view_data' => $vd,'keysearch' => $request->keysearch,'results' => $results]);

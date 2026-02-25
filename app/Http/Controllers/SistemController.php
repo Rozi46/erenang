@@ -342,7 +342,7 @@ class SistemController extends Controller
     }
 
     // Hasil Pertandingan
-    public function menudatahasilpertandingan(Request $request)
+    public function historyresult(Request $request)
     {
     	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
     		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
@@ -383,10 +383,10 @@ class SistemController extends Controller
             $vd = max(1, min($vd, 100));
             $request['vd'] = $vd;
             
-            $results[] = app('App\Http\Controllers\ApiControllerResult')->menudatahasilpertandingan($request);  
+            $results[] = app('App\Http\Controllers\ApiControllerResult')->historyresult($request);  
             $results = collect($results)->toJson();
             $results = json_decode($results,true);
-            $results = $results[0]['original'];        
+            $results = $results[0]['original'];   
 
             if($results['note'] == 'Tidak ada akses'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
@@ -663,6 +663,51 @@ class SistemController extends Controller
         }
     }
 
+    public function printresult(Request $request)
+    {
+    	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
+    		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
+    	}else{ 
+            date_default_timezone_set('Asia/Jakarta');
+            $url_api =  env('APP_API');
+            $admin_login = session('admin_login_renang');
+            $key_token = session('key_token_renang');
+            $load_app = $request->load;
+            $request['u'] = $admin_login;
+            $request['token'] = $key_token;
+            $request['app'] = 'kejuaraan';
+            $request['url_active'] = 'listchampionship';
+
+            $get_user = $this->get_user($request);           
+            if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
+            $request['data_company'] = $get_user['results']['data_company']; 
+
+            $res_user = $get_user['results'][0]['detailadmin'][0];
+            $res_level_user = $get_user['results'][0]['leveladmin'][0];
+            $nama_admin = substr($res_user['full_name'],0,15);
+            if(strlen($nama_admin) > 15){$nama_admin = $nama_admin."...";}
+            $request['nama_admin'] = $nama_admin;
+
+            $get_setting = $this->get_setting($request);
+            $manual_book =  $get_setting['results']['data_setting']['manual_book'];
+            $request['manual_book'] = $manual_book;
+
+            $list_akses = $this->get_akses($request);
+            $level_user = array();
+            for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
+            array_push($level_user, $access_rights);
+
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            $request['code_data'] = $request['d'];
+            $request['tipe_page'] = 'full';
+            $request['file_print'] = 'result';
+            $request['title_print'] = 'Result';
+            
+            return view('admin/AdminOne/print/tempprint',['url_api' => $url_api,'app' => 'tempprint','url_active' => 'tempprint','request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results']]);
+        }
+    }
+
     // Pendafataram
     public function menuregister(Request $request)
     {
@@ -917,6 +962,51 @@ class SistemController extends Controller
             $list_championship = $this->get_op_championshipRegister($request);
 
             return view($viewpath,['url_api' => $url_api,'app' => $request['app'],'url_active' => $request['url_active'],'request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results'],'results' => $results,'list_club' => $list_club['results'],'list_championship' => $list_championship['results']]);
+        }
+    }
+
+    public function printbook(Request $request)
+    {
+    	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
+    		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
+    	}else{ 
+            date_default_timezone_set('Asia/Jakarta');
+            $url_api =  env('APP_API');
+            $admin_login = session('admin_login_renang');
+            $key_token = session('key_token_renang');
+            $load_app = $request->load;
+            $request['u'] = $admin_login;
+            $request['token'] = $key_token;
+            $request['app'] = 'kejuaraan';
+            $request['url_active'] = 'listchampionship';
+
+            $get_user = $this->get_user($request);           
+            if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
+            $request['data_company'] = $get_user['results']['data_company']; 
+
+            $res_user = $get_user['results'][0]['detailadmin'][0];
+            $res_level_user = $get_user['results'][0]['leveladmin'][0];
+            $nama_admin = substr($res_user['full_name'],0,15);
+            if(strlen($nama_admin) > 15){$nama_admin = $nama_admin."...";}
+            $request['nama_admin'] = $nama_admin;
+
+            $get_setting = $this->get_setting($request);
+            $manual_book =  $get_setting['results']['data_setting']['manual_book'];
+            $request['manual_book'] = $manual_book;
+
+            $list_akses = $this->get_akses($request);
+            $level_user = array();
+            for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
+            array_push($level_user, $access_rights);
+
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            $request['code_data'] = $request['d'];
+            $request['tipe_page'] = 'full';
+            $request['file_print'] = 'book';
+            $request['title_print'] = 'Book';
+            
+            return view('admin/AdminOne/print/tempprint',['url_api' => $url_api,'app' => 'tempprint','url_active' => 'tempprint','request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results']]);
         }
     }
 

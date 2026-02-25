@@ -45,6 +45,7 @@
 													<th style="min-width:100px; text-align: center;">Jumlah Line</th>
 													<th style="min-width:200px; text-align: center;">Waktu Pelaksanaan</th>
 													<th style="min-width:100px; text-align: center;">Status</th>
+													<th style="min-width:150px; text-align: center;">Print</th>
 													<th class="colright" style="width:30px; text-align: center;"><i class="head fa fa-cog"></i></th>
 												</tr>
 											</thead>
@@ -95,7 +96,13 @@
 																</div>
 															@endif
 														</td>
+														<td style="text-align:center;">
+															<div style="display: flex; justify-content: center; gap: 4px;">
+																<a href="printbook?d={{$view_data['code_data']}}" target="_blank" class="btn btn-secondary btn-print-white"><i class="fa fa-print"></i> Print Buku</a>
 
+																<a href="printresult?d={{$view_data['code_data']}}" target="_blank" class="btn btn-info btn-print-white"><i class="fa fa-print"></i> Print Hasil</a>
+															</div>
+														</td>
 														<td class="colright" style="text-align:center;">
 															<div class="dropdown dropleft">
 																<button type="button" class="btn dropdown-toggle" data-toggle="dropdown">Atur</button>

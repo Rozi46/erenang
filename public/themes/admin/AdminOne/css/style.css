@@ -97,6 +97,13 @@ button:click{
 .btn-print-active:disabled i {
 	color: #6c757d; /* Warna abu-abu Bootstrap untuk ikon disabled */
 }
+
+/* Mengubah ikon print ke warna putih */
+.btn-print-white,
+.btn-print-white i {
+    color: #fff !important;
+}
+
 /* input{
 	outline: none;
 } */
