@@ -27,7 +27,7 @@
                         <td class="strtable" style="text-align:center;">{{$no}}</td>
                         <td class="strtable">{{ \Carbon\Carbon::parse($view_data['created_at'])->translatedFormat('l, j F Y - H:i:s') }}</td>
                         <td class="strtable" style="text-align:center;">{{$view_data['code_data']}}</td>
-                        <td>{{$view_data['full_name']}}</td>
+                        <td>{{$view_data['user']['full_name']}}</td>
                         <td>{{$view_data['activity']}}</td>
                     </tr>
                 @empty

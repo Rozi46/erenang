@@ -31,14 +31,14 @@
 							<div class="col-md-12 bg_act_page_main page">
 								<div class="row align-items-center">
 									<div class="col-xl-6 col_act_page_main text-left" style="margin-bottom:6px;">
-										Filter Data 
+										<!-- Filter Data 
 										<select name="tipe_data" placeholder="Tipe Penjualan" style="padding-top: 8px; padding-bottom: 6px;">
 											<option value="transaksi">Per Transaksi</option>
 											<option value="item">Per Barang</option>
 										</select>
 										<input type="text" name="datefilterstart" placeholder="Dari tanggal" style="width: 90px; text-align: padding-left: 0px; center; cursor: pointer;" readonly="" value="{{ \Carbon\Carbon::parse($datefilterstart)->format('d M Y') }}"/> 
 										- <input type="text" name="datefilterend" placeholder="Sampai tanggal" style="width: 90px; text-align: center; padding-left: 0px; cursor: pointer;" readonly="" value="{{ \Carbon\Carbon::parse($datefilterend)->format('d M Y') }}" />
-										<button type="button" class="btn btn-default filter" onclick="datefilter()">Filter</button>
+										<button type="button" class="btn btn-default filter" onclick="datefilter()">Filter</button> -->
 									</div>
 									<div class="col-xl-6 col_act_page_main text-right" style="margin-bottom:6px;">
 										@include('admin.AdminOne.layout.pagination')

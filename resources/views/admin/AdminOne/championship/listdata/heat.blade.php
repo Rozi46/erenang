@@ -13,7 +13,7 @@
 									<div class="col-xl-12 col_act_page_main text-left">
 										<button type="button" class="btn btn-default back" onclick="BackPage()"><i class="fa fa-chevron-left"></i> Kembali</button>
 										
-										@if($level_user['exportheat'] == 'Yes')<button type="button" class="btn btn-info back" onclick="exportdata('heat')"><i class="fa fa-download"></i> Export Data</button>@endif
+										<!-- @if($level_user['exportheat'] == 'Yes')<button type="button" class="btn btn-info back" onclick="exportdata('heat')"><i class="fa fa-download"></i> Export Data</button>@endif -->
 									</div>
 								</div>
 							</div>

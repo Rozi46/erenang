@@ -19,7 +19,7 @@
 										<button type="button" class="btn btn-default back" onclick="BackPage()"><i class="fa fa-chevron-left"></i> Kembali</button>
 										@if($level_user['inputresult'] == 'Yes')<a load="true" href="/admin/inputresult"><button type="button" class="btn btn-primary">Input Hasil Pertandingan</button></a>@endif
 
-                                        @if($level_user['exportresult'] == 'Yes')<button type="button" class="btn btn-info back" onclick="exportdata('result')"><i class="fa fa-download"></i> Export Data</button>@endif
+                                        <!-- @if($level_user['exportresult'] == 'Yes')<button type="button" class="btn btn-info back" onclick="exportdata('result')"><i class="fa fa-download"></i> Export Data</button>@endif -->
 									</div>
 								</div>
 							</div>

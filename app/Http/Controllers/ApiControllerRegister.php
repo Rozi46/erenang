@@ -114,13 +114,36 @@ class ApiControllerRegister extends Controller
             try {
                 DB::beginTransaction();
 
+                $athlete = Atlet::where('code_data',$request->code_atlete)->first();
+                $event = Event::where('code_data',$request->code_event)->first();
+
+                if(!$athlete){
+                    throw new \Exception('Atlet tidak ditemukan');
+                }
+
+                if(!$event){
+                    throw new \Exception('Event tidak ditemukan');
+                }
+
+                // $umur = Carbon::parse($athlete->tanggal_lahir)->age(Carbon::parse($event->tanggal));
+                // $kelompok = KelompokUmur::where('usia_min','<=',$umur)->where('usia_max','>=',$umur)->first();
+
+                if($athlete->tanggal_lahir && $event->tanggal){
+                    $umur = Carbon::parse($athlete->tanggal_lahir)->diffInYears(Carbon::parse($event->tanggal));
+                    $kelompok = KelompokUmur::where('min_usia','<=',$umur)->where('max_usia','>=',$umur)->first();
+                }
+
+                if(!$kelompok){
+                    throw new \Exception('Kelompok umur tidak ditemukan untuk umur '.$umur);
+                }
+
                 Registrasi::create([
                     'id'                => Str::uuid(),
                     'code_data'         => $newCodeData,
                     'code_champion'     => $request->code_championship,
                     'code_athlete'      => $request->code_atlete,
                     'code_event'        => json_encode($request->code_event),
-                    'code_age_group'    => '-',
+                    'code_age_group'    => $kelompok?->code_data,
                     'status'            => 'pending',
                     'payment_status'    => 'not_required',
                     'document'          => json_encode(['-']),

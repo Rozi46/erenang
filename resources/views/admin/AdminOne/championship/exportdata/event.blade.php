@@ -22,14 +22,14 @@
                         <td class="strtable" >{{$view_data['code_event'] ?? 'Belum ditentukan'}} </td>    
                         @php
                             $jarak = isset($view_data['jarak']) ? number_format($view_data['jarak'], 0, ',', '') . ' M' : 'Belum ditentukan';
-                            $gaya = $listdata['detail_gaya'][$view_data['code_data']]['nama_gaya'] ?? '';
-                            $kelompok = $listdata['detail_ku'][$view_data['code_data']]['code_kelompok'] ?? '';
+                            $gaya = $view_data['kategori']['nama_gaya'] ?? '';
+                            $kelompok = $view_data['kelompok_umur']['code_kelompok'] ?? '';
                             $gender = $view_data['gender'] ?? '';
                             $hasil = trim("$jarak $gaya $kelompok $gender");
                         @endphp
                         <td class="strtable" style="text-align:center;">{{ $hasil }}</td>                    
                         <td class="strtable" style="text-align:center;">{{ !empty($view_data['tanggal']) ? \Carbon\Carbon::parse($view_data['tanggal'])->translatedFormat('d F Y') : 'Belum ditentukan' }}</td>
-                        <td class="strtable" style="text-align:center;">{{$listdata['detail_kejuaraan'][$view_data['code_data']]['nama_kejuaraan'] ?? 'Belum ditentukan'}}</td>
+                        <td class="strtable" style="text-align:center;">{{ $view_data['championship']['nama_kejuaraan'] ?? 'Belum ditentukan' ?? 'Belum ditentukan'}}</td>
                     </tr>
                 @empty
                     <tr>

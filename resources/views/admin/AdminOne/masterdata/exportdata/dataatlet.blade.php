@@ -23,12 +23,12 @@
                     <tr>
                         <td class="strtable" style="text-align:center;">{{$no}}</td>
                         <td class="strtable" style="text-align:center;">{{$view_data['code_data'] ?? 'Belum ditentukan'}} </td>                        
-                        <td class="strtable" >{{$view_data['nis'] ?? 'Belum ditentukan'}}</td>
+                        <td class="strtable" style="text-align:center;">{{$view_data['nis'] ?? 'Belum ditentukan'}}</td>
                         <td class="strtable" style="text-align:center;">{{$view_data['nama'] ?? 'Belum ditentukan'}}</td>
                         <td class="strtable" style="text-align:center;">{{$view_data['gender'] ?? 'Belum ditentukan'}}</td>
                         <td class="strtable" style="text-align:center;">{{$view_data['tempat_lahir'] ?? 'Belum ditentukan'}}</td>
                         <td class="strtable" style="text-align:center;">{{ !empty($view_data['tanggal_lahir']) ? \Carbon\Carbon::parse($view_data['tanggal_lahir'])->translatedFormat('d F Y') : 'Belum ditentukan' }} </td>
-                        <td class="strtable" style="text-align:center;">{{$listdata['detail_club'][$view_data['code_data']]['nama_club'] ?? 'Belum ditentukan'}}</td>
+                        <td class="strtable" style="text-align:center;">{{$view_data['club']['nama_club'] ?? 'Belum ditentukan'}}</td>
                     </tr>
                 @empty
                     <tr>

@@ -26,7 +26,7 @@
 									{{csrf_field()}}
 									<div class="row bg_data_page form_page content">
                                         <input type="text" name="code_data" value="{{ $results['results']['championship']['code_data'] }}" readonly="true" style="display: none;" />  
-                                        <div class="col-md-12 bg_form_page">
+                                        <div class="col-md-8 bg_form_page">
                                             <div class="col-md-12 bg_form_page">
                                                 <div class="form-group row form_input text-left">
                                                     <label for="nama_kejuaraan" class="col-sm-2 col-form-label">Nama Kejuaraan <span>*</span></label>
@@ -68,6 +68,16 @@
                                                 </div>
 										    </div>
                                         </div>
+										<div class="col-md-4 bg_form_page">
+											<div class="form_input text-left">
+												<div class="tag_title">Logo Kejuaraan</div>
+                                                <img src="{{ !empty($results['results']['championship']['logo']) ? asset('/themes/admin/AdminOne/image/upload/'.$results['results']['championship']['logo']) : asset('/themes/admin/AdminOne/image/no_image.png') }}" alt="Logo" srcimg="logo" onclick="OpenFile('form_data','logo')">
+												<input type="file" accept="image/*" name="logo" placeholder="Logo"/>
+												<div class="btn_200">
+													<button type="button" class="btn btn-default" onclick="OpenFile('form_data','logo')">Upload Logo</button>
+												</div>	
+											</div>
+										</div>
 									</div> 
 								</form>
 							</div>

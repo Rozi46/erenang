@@ -25,6 +25,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='menudatahasilpertandingan';
+            $action='inputresult';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -39,7 +41,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['menudatahasilpertandingan'] == 'No' OR $level_user[0]['inputresult'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'code_championship' => 'required|string|max:200',
@@ -71,6 +73,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='menudatahasilpertandingan';
+            $action='inputresult';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -85,7 +89,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['menudatahasilpertandingan'] == 'No' OR $level_user[0]['inputresult'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $response[] = app('App\Http\Controllers\ApiControllerResult')->uploadfotoresult($request);  
             $response = collect($response)->toJson();
@@ -111,6 +115,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='menudatahasilpertandingan';
+            $action='inputresult';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -125,7 +131,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['menudatahasilpertandingan'] == 'No' OR $level_user[0]['inputresult'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $response[] = app('App\Http\Controllers\ApiControllerResult')->savecatatan($request);  
             $response = collect($response)->toJson();
@@ -150,6 +156,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='menudatahasilpertandingan';
+            $action='inputresult';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -164,7 +172,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['menudatahasilpertandingan'] == 'No' OR $level_user[0]['inputresult'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'code_championship' => 'required|string|max:200',
@@ -202,6 +210,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='menuregister';
+            $action='inputregister';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -216,7 +226,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['menuregister'] == 'No' OR $level_user[0]['inputregister'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'code_club'         => 'required|string|max:200',
@@ -250,6 +260,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='menuregister';
+            $action='editregister';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -264,7 +276,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['menuregister'] == 'No' OR $level_user[0]['editregister'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'nama_club'         => 'required|string|max:200',
@@ -302,6 +314,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='menuregister';
+            $action='editregister';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -316,7 +330,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['menuregister'] == 'No' OR $level_user[0]['editregister'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $request['code_data'] = $request['d'];
             $response[] = app('App\Http\Controllers\ApiControllerRegister')->verifiedregister($request);  
@@ -342,6 +356,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='menuregister';
+            $action='editregister';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -356,7 +372,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['menuregister'] == 'No' OR $level_user[0]['editregister'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $request['code_data'] = $request['d'];
             $response[] = app('App\Http\Controllers\ApiControllerRegister')->rejectedregister($request);  
@@ -383,6 +399,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listchampionship';
+            $action='newchampionship';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -397,7 +415,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listchampionship'] == 'No' OR $level_user[0]['newchampionship'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'nama_kejuaraan'    => 'required|string|max:200',
@@ -440,6 +458,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listchampionship';
+            $action='editchampionship';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -454,7 +474,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listchampionship'] == 'No' OR $level_user[0]['editchampionship'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'nama_kejuaraan'    => 'required|string|max:200',
@@ -496,6 +516,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listchampionship';
+            $action='deletechampionship';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -510,7 +532,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listchampionship'] == 'No' OR $level_user[0]['deletechampionship'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
             
             $request['code_data'] = $request['d'];
 
@@ -538,6 +560,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listevent';
+            $action='newevent';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -552,7 +576,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listevent'] == 'No' OR $level_user[0]['newevent'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'code_event'        => 'required|string|max:200',
@@ -591,6 +615,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listevent';
+            $action='editevent';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -605,7 +631,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listevent'] == 'No' OR $level_user[0]['editevent'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'code_event'        => 'required|string|max:200',
@@ -645,6 +671,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listevent';
+            $action='deleteevent';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -659,7 +687,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listevent'] == 'No' OR $level_user[0]['deleteevent'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
             
             $request['code_data'] = $request['d'];
 
@@ -686,6 +714,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listevent';
+            $action='editevent';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -700,7 +730,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listevent'] == 'No' OR $level_user[0]['editevent'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
             
             $request['code_data'] = $request['d'];
 
@@ -728,6 +758,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listatlet';
+            $action='newatlet';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -742,7 +774,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listatlet'] == 'No' OR $level_user[0]['newatlet'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'nis' => 'required|string|max:200',
@@ -785,6 +817,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listatlet';
+            $action='editatlet';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -799,7 +833,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listatlet'] == 'No' OR $level_user[0]['editatlet'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'nis'           => 'required|string|max:200',
@@ -837,6 +871,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listatlet';
+            $action='deleteatlet';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -851,7 +887,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listatlet'] == 'No' OR $level_user[0]['deleteatlet'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
             
             $request['code_data'] = $request['d'];
 
@@ -879,6 +915,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listclub';
+            $action='newclub';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -893,7 +931,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listclub'] == 'No' OR $level_user[0]['newclub'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'nama_club' => 'required|string|max:200',
@@ -934,6 +972,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listclub';
+            $action='editclub';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -948,7 +988,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listclub'] == 'No' OR $level_user[0]['editclub'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'nama_club' => 'required|string|max:200',
@@ -988,6 +1028,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listclub';
+            $action='deleteclub';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1002,7 +1044,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listclub'] == 'No' OR $level_user[0]['deleteclub'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
             
             $request['code_data'] = $request['d'];
 
@@ -1030,6 +1072,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listkategori';
+            $action='newkategori';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1044,7 +1088,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listkategori'] == 'No' OR $level_user[0]['newkategori'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'nama_gaya' => 'required|string|max:200',
@@ -1081,6 +1125,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listkategori';
+            $action='editkategori';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1095,7 +1141,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listkategori'] == 'No' OR $level_user[0]['editkategori'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'nama_gaya' => 'required|string|max:200',
@@ -1133,6 +1179,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listkategori';
+            $action='deletekategori';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1147,7 +1195,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listkategori'] == 'No' OR $level_user[0]['deletekategori'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
             
             $request['code_data'] = $request['d'];
 
@@ -1175,6 +1223,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listku';
+            $action='newku';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1189,7 +1239,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listku'] == 'No' OR $level_user[0]['newku'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'code_kelompok' => 'required|string|max:200',
@@ -1225,6 +1275,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listku';
+            $action='editku';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1239,7 +1291,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listku'] == 'No' OR $level_user[0]['editku'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'code_kelompok' => 'required|string|max:200',
@@ -1280,6 +1332,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listku';
+            $action='deleteku';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1294,7 +1348,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listku'] == 'No' OR $level_user[0]['deleteku'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
             
             $request['code_data'] = $request['d'];
 
@@ -1322,6 +1376,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listsupplier';
+            $action='newsupplier';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1336,7 +1392,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listsupplier'] == 'No' OR $level_user[0]['newsupplier'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'nama' => 'required|string|max:200',
@@ -1375,6 +1431,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listsupplier';
+            $action='editsupplier';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1389,7 +1447,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listsupplier'] == 'No' OR $level_user[0]['editsupplier'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'nama' => 'required|string|max:200',
@@ -1429,6 +1487,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listsupplier';
+            $action='editsupplier';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1443,7 +1503,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listsupplier'] == 'No' OR $level_user[0]['editsupplier'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
             
             $request['id'] = $request['id'];
 
@@ -1470,6 +1530,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listsupplier';
+            $action='deletesupplier';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1484,7 +1546,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listsupplier'] == 'No' OR $level_user[0]['deletesupplier'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
             
             $request['id'] = $request['d'];
 
@@ -1512,6 +1574,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listusers';
+            $action='newusers';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1526,7 +1590,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listusers'] == 'No' OR $level_user[0]['newusers'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'full_name' => 'required|string|max:200',
@@ -1567,6 +1631,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listusers';
+            $action='editusers';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1581,7 +1647,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listusers'] == 'No' OR $level_user[0]['editusers'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'full_name' => 'required|string|max:200',
@@ -1624,6 +1690,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='listusers';
+            $action='deleteusers';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1638,7 +1706,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listusers'] == 'No' OR $level_user[0]['deleteusers'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
             
             $request['id'] = $request['d'];
 
@@ -1670,6 +1738,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='levelusers';
+            $action='editlevelusers';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1684,7 +1754,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['levelusers'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $this->validate($request, [
                 'level_name' => 'required|string',
@@ -1729,6 +1799,8 @@ class ActionController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $menu='levelusers';
+            $action='deletelevelusers';
  
             $get_user = $this->get_user($request);         
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1743,7 +1815,7 @@ class ActionController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['levelusers'] == 'No' OR $level_user[0]['deletelevelusers'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
             
             $request['code_data'] = $request['d'];
 

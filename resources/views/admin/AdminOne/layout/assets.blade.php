@@ -16,6 +16,7 @@
         <link rel="stylesheet" href="{{ url('/themes/admin/AdminOne/css/header.css') }}">
         <link rel="stylesheet" href="{{ url('/themes/admin/AdminOne/css/sidebar.css') }}">
         <link rel="stylesheet" href="{{ url('/themes/admin/AdminOne/css/style.css') }}">
+        <link rel="stylesheet" href="{{ url('/themes/admin/AdminOne/css/home.css') }}">
         <link rel="stylesheet" href="{{ url('/themes/admin/AdminOne/js/ui/jquery-ui.css') }}">
         <link rel="stylesheet" href="{{ url('/themes/admin/AdminOne/select/css/select2.min.css') }}"/>
 

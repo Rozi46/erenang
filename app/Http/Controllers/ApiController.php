@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 require '../vendor/autoload.php';
 
 use App\Http\Controllers\Controller;
-use App\Models\{Setting, Company, User, LevelAdmin, ListAkses, Activity};
+use App\Models\{Setting, Company, User, LevelAdmin, ListAkses, Activity, Atlet, Club, Event, Result, Registrasi, KelompokUmur, Heat};
 use Illuminate\Http\{Request, UploadedFile, Response};
 use Illuminate\Support\Facades\{Hash, Validator, File, Http, Route, Session, Auth, DB, Lang};
 use Illuminate\Support\{Carbon, Str};
@@ -141,17 +141,51 @@ class ApiController extends Controller
             $hari_now = Carbon::now()->format('d');
 
             $results['thn_now'] = $thn_now;
-            $results['bln_now'] = $bln_now;
+            $results['bln_now'] = $bln_now;            
 
-            if($request->has('vd')){
-                if($request->vd == ''){
-                    $vd = '20';
-                }else{
-                    $vd = $request->vd;
-                }
-            }else{
-                $vd = '20';
-            } 
+            $vd = intval($request->vd ?? 20);
+            $vd = max(1, min($vd, 100));
+
+
+            // ===== Statistik Utama =====
+            $results['totalAtlet'] = Atlet::count();
+            $results['totalClub'] = Club::count();
+            $results['totalEvent'] = Event::count();
+            $results['totalRegistrasi'] = Registrasi::count();
+            $results['totalHeat'] = Heat::count();
+            $results['totalHasil'] = Result::count();
+
+            // ===== Grafik Gender =====
+            $results['genderStats'] = Atlet::select(
+                    'gender',
+                    DB::raw('count(*) as total')
+                )
+                ->groupBy('gender')
+                ->pluck('total','gender');
+
+            // ===== Grafik Kelompok Umur =====
+            $results['ageStats'] = KelompokUmur::withCount('registrasi')->get();
+
+            // ===== Pendaftaran per Event =====
+            $results['eventStats'] = Event::withCount('registrasi')
+                ->orderByDesc('registrasi_count')
+                ->limit(10)
+                ->get();
+
+            // ===== Ranking Club (berdasarkan poin) =====
+            $results['clubRanking'] = DB::table('db_results')
+                ->join('db_athletes','db_results.code_athlete','=','db_athletes.code_data')
+                ->join('db_clubs','db_athletes.code_club','=','db_clubs.code_data')
+                ->select(
+                    'db_clubs.nama_club',
+                    DB::raw('SUM(db_results.poin) as total_poin')
+                )
+                ->groupBy('db_clubs.nama_club')
+                ->orderByDesc('total_poin')
+                ->limit(10)
+                ->get();
+
+            return response()->json(['status_message' => 'success','results' => $results]);
 
             // $results['total_hutang'] = Hutang::Where('code_company',$viewadmin->code_company)->sum('sisa'); 
             // $results['total_hutang_count'] = Hutang::Where('code_company',$viewadmin->code_company)->Where('sisa', '<>', 0)->count();        
@@ -343,7 +377,7 @@ class ApiController extends Controller
             // $results['total_po_thn'] = Pembelian::Where('code_company',$viewadmin->code_company)->Where('status_transaksi','!=','Input')->WhereYear('tanggal',$thn_now)->count();
             // $results['total_so_thn'] = Penjualan::Where('code_company',$viewadmin->code_company)->Where('status_transaksi','!=','Input')->WhereYear('tanggal',$thn_now)->count();
 
-            return response()->json(['status_message' => 'success','results' => $results]);
+            // return response()->json(['status_message' => 'success','results' => $results]);
         }
     }
 

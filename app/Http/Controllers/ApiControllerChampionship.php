@@ -221,7 +221,30 @@ class ApiControllerChampionship extends Controller
                             'jumlah_line'       => $request->get('jumlah_line'),
                             'tanggal_mulai'     => $tanggal_mulai,
                             'tanggal_selesai'   => $tanggal_selesai,
-                        ]);  
+                        ]); 
+
+
+                    if(!$request->hasFile('logo')){
+                        return response()->json(['status_message'=>'error','note'=>'File tidak ditemukan']);
+                    }
+
+                    $file = $request->file('logo');
+                    $championship = Championship::where('code_data', $request->get('code_data'))->first();
+
+                    if(!$championship){
+                        return response()->json(['status_message'=>'error','note'=>'Data logo tidak ditemukan']);
+                    }
+
+                    if($championship->logo){
+                        File::delete(public_path('/themes/admin/AdminOne/image/upload/'.$championship->logo));
+                    }
+
+                    $imageName = 'CH-'.$request->code_data.'-'.time().'.'.$file->getClientOriginalExtension();
+                    $file->move(public_path('/themes/admin/AdminOne/image/upload/'),$imageName );
+
+                    $championship->update([
+                        'logo'=>$imageName
+                    ]);
 
                     $otp = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 1);
                     $newCodeData_activity = ltrim(Carbon::now()->format('Ymdhis') . $otp, '0');

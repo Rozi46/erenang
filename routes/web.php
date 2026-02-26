@@ -60,6 +60,7 @@ Route::get('/admin/dash',[\App\Http\Controllers\SistemController::class, 'dash']
 	Route::post('/admin/verifiedregister',[\App\Http\Controllers\ActionController::class, 'verifiedregister']);
 	Route::post('/admin/rejectedregister',[\App\Http\Controllers\ActionController::class, 'rejectedregister']);
 	Route::get('/admin/printbook',[\App\Http\Controllers\SistemController::class, 'printbook']);
+	Route::get('/admin/exportregister',[\App\Http\Controllers\SistemController::class, 'exportregister']);
 
 	// Event
 	Route::get('/admin/listevent',[\App\Http\Controllers\SistemController::class, 'listevent']);

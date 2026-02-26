@@ -39,6 +39,7 @@
 											<thead>
 												<tr>
 													<th style="width:30px; text-align: center;">No</th>
+													<th style="min-width:150px; text-align: center;">Logo</th>
 													<th style="min-width:50px; text-align: center;">Kode Data</th>
 													<th style="min-width:150px; text-align: center;">Nama Kejuaraan</th>
 													<th style="min-width:150px; text-align: center;">Lokasi</th>
@@ -76,6 +77,7 @@
 													</script>
 													<tr>
 														<td style="text-align:center;">{{$no}}</td>
+														<td style="text-align:center;"><img src="{{ !empty($view_data['logo']) ? asset('/themes/admin/AdminOne/image/upload/'.$view_data['logo']) : asset('/themes/admin/AdminOne/image/no_image.png') }}" class="preview-foto" data-id="{{ $view_data['id'] }}" style="width:150px;height:100px;object-fit:cover;cursor:pointer;border-radius:6px;border:1px solid #ddd;"></td>	
 														<td style="text-align:center;">{{$view_data['code_data'] ?? 'Belum ditentukan'}}</td>
 														<td>{{$view_data['nama_kejuaraan'] ?? 'Belum ditentukan'}}</td>
 														<td style="text-align:center;">{{$view_data['lokasi'] ?? 'Belum ditentukan'}}</td>

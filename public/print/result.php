@@ -68,11 +68,35 @@
                     function Header()
                     {
                         // ===== Logo =====
-                        if (!empty($this->getdata['detail_perusahaan']['foto'])) {
-                            $img = __DIR__ . '/../themes/admin/AdminOne/image/public/' . $this->getdata['detail_perusahaan']['foto'];
-                            if (file_exists($img)) {
-                                $this->Image($img, 10, 6, 22);
+                        // if (!empty($this->getdata['detail_perusahaan']['foto'])) {
+                        //     $img = __DIR__ . '/../themes/admin/AdminOne/image/public/' . $this->getdata['detail_perusahaan']['foto'];
+                        //     if (file_exists($img)) {
+                        //         $this->Image($img, 10, 6, 22);
+                        //     }
+                        // }
+                        
+                        // ===== Logo =====
+                        $img = null;
+
+                        // Prioritas: logo championship
+                        if (!empty($this->getdata['championship']['logo'])) {
+                            $pathChamp = __DIR__ . '/../themes/admin/AdminOne/image/upload/' . $this->getdata['championship']['logo'];
+                            if (file_exists($pathChamp)) {
+                                $img = $pathChamp;
                             }
+                        }
+
+                        // Fallback: foto perusahaan
+                        if (!$img && !empty($this->getdata['detail_perusahaan']['foto'])) {
+                            $pathCompany = __DIR__ . '/../themes/admin/AdminOne/image/public/' . $this->getdata['detail_perusahaan']['foto'];
+                            if (file_exists($pathCompany)) {
+                                $img = $pathCompany;
+                            }
+                        }
+
+                        // Tampilkan jika ada
+                        if ($img) {
+                            $this->Image($img, 10, 6, 18);
                         }
 
                         // ===== Nama Event / Kejuaraan =====

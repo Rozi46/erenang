@@ -10,7 +10,7 @@ use Illuminate\Support\Carbon;
 use App\Http\Controllers\{Controller, ApiController};
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\{DataPengguna, AktivitasPengguna, Atlet, Club, Kategori, KelompokUmur, Championship, Event};
+use App\Exports\{DataPengguna, AktivitasPengguna, Atlet, Club, Kategori, KelompokUmur, Championship, Event, Register};
 
 class SistemController extends Controller
 {
@@ -126,15 +126,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($request->has('vd')){
-                if($request->vd == ''){
-                    $vd = '20';
-                }else{
-                    $vd = $request->vd;
-                }
-            }else{
-                $vd = '20';
-            }
+            $vd = intval($request->vd ?? 20);
+            $vd = max(1, min($vd, 100));
+            $request['vd'] = $vd;
             
             $results[] = app('App\Http\Controllers\ApiController')->getdash($request);  
             $results = collect($results)->toJson();
@@ -160,6 +154,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'kejuaraan';
             $request['url_active'] = 'listchampionship';
+            $menu='kejuaraan';
+            $action='listchampionship';
             $viewpath = 'admin.AdminOne.championship.listdata.datachampionship';
 
             $get_user = $this->get_user($request);           
@@ -181,7 +177,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['kejuaraan'] == 'No' OR $level_user[0]['listchampionship'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100));
@@ -212,6 +210,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'kejuaraan';
             $request['url_active'] = 'listchampionship';
+            $menu='listchampionship';
+            $action='newchampionship';
             $viewpath = 'admin.AdminOne.championship.newdata.datachampionship';
 
             $get_user = $this->get_user($request);           
@@ -233,7 +233,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listatlet'] == 'No' OR $level_user[0]['newatlet'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             return view($viewpath,['url_api' => $url_api,'app' => $request['app'],'url_active' => $request['url_active'],'request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results']]);
         }
@@ -253,6 +255,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'kejuaraan';
             $request['url_active'] = 'listchampionship';
+            $menu='listchampionship';
+            $action='editchampionship';
             $viewpath = 'admin.AdminOne.championship.editdata.datachampionship';
 
             $get_user = $this->get_user($request);           
@@ -274,7 +278,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['kejuaraan'] == 'No' OR $level_user[0]['listchampionship'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $request['code_data'] = $request['d'];
             
@@ -301,6 +307,10 @@ class SistemController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $request['app'] = 'kejuaraan';
+            $request['url_active'] = 'listchampionship';
+            $menu='listchampionship';
+            $action='exportchampionship';
 
             $get_user = $this->get_user($request);           
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -321,19 +331,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['kejuaraan'] == 'No' OR $level_user[0]['listchampionship'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
-            $vd = intval($request->vd ?? 20);
-            $vd = max(1, min($vd, 100));
-            $request['vd'] = $vd;
-            $request['type'] = 'export';
-            
-            $results[] = app('App\Http\Controllers\ApiControllerChampionship')->listchampionship($request);  
-            $results = collect($results)->toJson();
-            $results = json_decode($results,true);
-            $results = $results[0]['original'];
-
-            if($results['note'] == 'Tidak ada akses'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
             
             $datetime_now = date('Y-m-d-His');
             $nama_file = "Data-Kejuaraan-".$datetime_now.".xls" ;
@@ -356,6 +356,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'menuhasilpertandingan';
             $request['url_active'] = 'menudatahasilpertandingan';
+            $menu='menudatahasilpertandingan';
+            $action='historyresult';
             $viewpath = 'admin.AdminOne.result.listdata.dataresult';
 
             $get_user = $this->get_user($request);           
@@ -379,6 +381,8 @@ class SistemController extends Controller
 
             if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100));
             $request['vd'] = $vd;
@@ -399,7 +403,6 @@ class SistemController extends Controller
     	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
     		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
     	}else{ 
-
             date_default_timezone_set('Asia/Jakarta');
             $url_api =  env('APP_API');
             $admin_login = session('admin_login_renang');
@@ -409,6 +412,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'menuhasilpertandingan';
             $request['url_active'] = 'menudatahasilpertandingan';
+            $menu='menudatahasilpertandingan';
+            $action='inputresult';
 
             $get_user = $this->get_user($request);           
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -429,7 +434,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}    
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}   
 
             $results[] = app('App\Http\Controllers\ApiControllerResult')->listopeventresult($request);  
             $results = collect($results)->toJson();
@@ -454,6 +461,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'menuhasilpertandingan';
             $request['url_active'] = 'menudatahasilpertandingan';
+            $menu='menudatahasilpertandingan';
+            $action='inputresult';
             $viewpath = 'admin.AdminOne.result.newdata.dataresult';
 
             $get_user = $this->get_user($request);           
@@ -476,6 +485,8 @@ class SistemController extends Controller
             array_push($level_user, $access_rights);
 
             if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
                        
             $list_championship = $this->get_op_championshipResult($request);
 
@@ -497,6 +508,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'menuhasilpertandingan';
             $request['url_active'] = 'menudatahasilpertandingan';
+            $menu='menudatahasilpertandingan';
+            $action='inputresult';
 
             $get_user = $this->get_user($request);           
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -518,6 +531,8 @@ class SistemController extends Controller
             array_push($level_user, $access_rights);
 
             if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100));
@@ -561,6 +576,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'menuhasilpertandingan';
             $request['url_active'] = 'menudatahasilpertandingan';
+            $menu='menudatahasilpertandingan';
+            $action='inputresult';
             $viewpath = 'admin.AdminOne.result.editdata.dataresult';
 
             $get_user = $this->get_user($request);           
@@ -583,6 +600,8 @@ class SistemController extends Controller
             array_push($level_user, $access_rights);
 
             if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
             $request['code_data'] = $request['d'];
             $request['code_championship'] = $request['code_championship'];
@@ -617,6 +636,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'menuhasilpertandingan';
             $request['url_active'] = 'menudatahasilpertandingan';
+            $menu='menudatahasilpertandingan';
+            $action='historyresult';
 
             $get_user = $this->get_user($request);           
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -638,6 +659,8 @@ class SistemController extends Controller
             array_push($level_user, $access_rights);
 
             if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
             if($request->status_data == 'Yes'){      
                 $viewpath = 'admin.AdminOne.result.inputdata.listinputdataresult';      
@@ -677,6 +700,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'kejuaraan';
             $request['url_active'] = 'listchampionship';
+            $menu='menudatahasilpertandingan';
+            $action='historyresult';
 
             $get_user = $this->get_user($request);           
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -698,6 +723,8 @@ class SistemController extends Controller
             array_push($level_user, $access_rights);
 
             if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
             $request['code_data'] = $request['d'];
             $request['tipe_page'] = 'full';
@@ -723,6 +750,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'menupendaftaran';
             $request['url_active'] = 'menuregister';
+            $menu='menuregister';
+            $action='inputregister';
             $viewpath = 'admin.AdminOne.menuregister.newdata.register';
 
             $get_user = $this->get_user($request);           
@@ -744,7 +773,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['menuregister'] == 'No' OR $level_user[0]['inputregister'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
             
             $list_club = $this->get_op_club($request);            
             $list_championship = $this->get_op_championshipRegister($request);
@@ -758,7 +789,6 @@ class SistemController extends Controller
     	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
     		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
     	}else{ 
-
             date_default_timezone_set('Asia/Jakarta');
             $url_api =  env('APP_API');
             $admin_login = session('admin_login_renang');
@@ -768,6 +798,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'menupendaftaran';
             $request['url_active'] = 'menuregister';
+            $menu='menuregister';
+            $action='inputregister';
             $viewpath = 'admin.AdminOne.menuregister.newdata.register';
 
             $get_user = $this->get_user($request);           
@@ -789,7 +821,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['menuregister'] == 'No' OR $level_user[0]['inputregister'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}      
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}  
 
             $results[] = app('App\Http\Controllers\ApiControllerRegister')->listopatlet($request);  
             $results = collect($results)->toJson();
@@ -805,7 +839,6 @@ class SistemController extends Controller
     	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
     		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
     	}else{ 
-
             date_default_timezone_set('Asia/Jakarta');
             $url_api =  env('APP_API');
             $admin_login = session('admin_login_renang');
@@ -815,6 +848,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'menupendaftaran';
             $request['url_active'] = 'menuregister';
+            $menu='menuregister';
+            $action='inputregister';
             $viewpath = 'admin.AdminOne.menuregister.newdata.register';
 
             $get_user = $this->get_user($request);           
@@ -836,7 +871,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['menuregister'] == 'No' OR $level_user[0]['inputregister'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}    
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}     
 
             $results[] = app('App\Http\Controllers\ApiControllerRegister')->listopevent($request);  
             $results = collect($results)->toJson();
@@ -861,6 +898,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'menupendaftaran';
             $request['url_active'] = 'menuregister';
+            $menu='menuregister';
+            $action='histroryregister';  
             $viewpath = 'admin.AdminOne.menuregister.listdata.historyregister';
 
             $get_user = $this->get_user($request);           
@@ -882,7 +921,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['menuregister'] == 'No' OR $level_user[0]['histroryregister'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}  
 
             Carbon::setLocale('en');
 
@@ -926,6 +967,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'menupendaftaran';
             $request['url_active'] = 'menuregister';
+            $menu='menuregister';
+            $action='editregister';  
             $viewpath = 'admin.AdminOne.menuregister.editdata.register';
 
             $get_user = $this->get_user($request);           
@@ -947,7 +990,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['menuregister'] == 'No' OR $level_user[0]['histroryregister'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}  
 
             $request['code_data'] = $request['d'];
             $results[] = app('App\Http\Controllers\ApiControllerRegister')->viewregister($request);  
@@ -979,6 +1024,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'kejuaraan';
             $request['url_active'] = 'listchampionship';
+            $menu='menudatahasilpertandingan';
+            $action='historyresult';
 
             $get_user = $this->get_user($request);           
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1001,12 +1048,60 @@ class SistemController extends Controller
 
             if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
             $request['code_data'] = $request['d'];
             $request['tipe_page'] = 'full';
             $request['file_print'] = 'book';
             $request['title_print'] = 'Book';
             
             return view('admin/AdminOne/print/tempprint',['url_api' => $url_api,'app' => 'tempprint','url_active' => 'tempprint','request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results']]);
+        }
+    }
+
+    public function exportregister(Request $request)
+    {
+    	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
+    		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
+    	}else{ 
+            date_default_timezone_set('Asia/Jakarta');
+            $url_api =  env('APP_API');
+            $admin_login = session('admin_login_renang');
+            $key_token = session('key_token_renang');
+            $load_app = $request->load;
+            $request['u'] = $admin_login;
+            $request['token'] = $key_token;
+            $request['app'] = 'menupendaftaran';
+            $request['url_active'] = 'menuregister';
+            $menu='menuregister';
+            $action='exportregister'; 
+
+            $get_user = $this->get_user($request);           
+            if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
+            $request['data_company'] = $get_user['results']['data_company']; 
+
+            $res_user = $get_user['results'][0]['detailadmin'][0];
+            $res_level_user = $get_user['results'][0]['leveladmin'][0];
+            $nama_admin = substr($res_user['full_name'],0,15);
+            if(strlen($nama_admin) > 15){$nama_admin = $nama_admin."...";}
+            $request['nama_admin'] = $nama_admin;
+
+            $get_setting = $this->get_setting($request);
+            $manual_book =  $get_setting['results']['data_setting']['manual_book'];
+            $request['manual_book'] = $manual_book;
+
+            $list_akses = $this->get_akses($request);
+            $level_user = array();
+            for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
+            array_push($level_user, $access_rights);            
+
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            
+            $datetime_now = date('Y-m-d-His');
+            $nama_file = "Data-Pendaftaran-".$datetime_now.".xls" ;
+            return Excel::download(new Register($request), $nama_file);
         }
     }
 
@@ -1025,6 +1120,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'kejuaraan';
             $request['url_active'] = 'listevent';
+            $menu='kejuaraan';
+            $action='listevent'; 
             $viewpath = 'admin.AdminOne.championship.listdata.event';
 
             $get_user = $this->get_user($request);           
@@ -1046,7 +1143,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['kejuaraan'] == 'No' OR $level_user[0]['listevent'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100));
@@ -1077,6 +1176,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'kejuaraan';
             $request['url_active'] = 'listevent';
+            $menu='listevent';
+            $action='newevent'; 
             $viewpath = 'admin.AdminOne.championship.newdata.event';
 
             $get_user = $this->get_user($request);           
@@ -1098,7 +1199,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listevent'] == 'No' OR $level_user[0]['newevent'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
             
             $list_gaya = $this->get_op_gaya($request);
             $list_ku = $this->get_op_ku($request);            
@@ -1122,6 +1225,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'kejuaraan';
             $request['url_active'] = 'listevent';
+            $menu='listevent';
+            $action='editevent'; 
             $viewpath = 'admin.AdminOne.championship.editdata.event';
 
             $get_user = $this->get_user($request);           
@@ -1143,7 +1248,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['kejuaraan'] == 'No' OR $level_user[0]['listevent'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $request['code_data'] = $request['d'];
             
@@ -1173,7 +1280,11 @@ class SistemController extends Controller
             $key_token = session('key_token_renang');
             $load_app = $request->load;
             $request['u'] = $admin_login;
-            $request['token'] = $key_token;
+            $request['token'] = $key_token;            
+            $request['app'] = 'kejuaraan';
+            $request['url_active'] = 'listevent';
+            $menu='listevent';
+            $action='exportevent'; 
 
             $get_user = $this->get_user($request);           
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1194,19 +1305,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['kejuaraan'] == 'No' OR $level_user[0]['listevent'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
-            $vd = intval($request->vd ?? 20);
-            $vd = max(1, min($vd, 100));
-            $request['vd'] = $vd;
-            $request['type'] = 'export';
-            
-            $results[] = app('App\Http\Controllers\ApiControllerChampionship')->listevent($request);  
-            $results = collect($results)->toJson();
-            $results = json_decode($results,true);
-            $results = $results[0]['original'];
-
-            if($results['note'] == 'Tidak ada akses'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
             
             $datetime_now = date('Y-m-d-His');
             $nama_file = "Data-Nomor Lomba-".$datetime_now.".xls" ;
@@ -1229,6 +1330,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'kejuaraan';
             $request['url_active'] = 'listheat';
+            $menu='kejuaraan';
+            $action='listheat'; 
             $viewpath = 'admin.AdminOne.championship.listdata.heat';
 
             $get_user = $this->get_user($request);           
@@ -1250,7 +1353,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['kejuaraan'] == 'No' OR $level_user[0]['listheat'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100));
@@ -1282,6 +1387,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'kejuaraan';
             $request['url_active'] = 'listheatline';
+            $menu='kejuaraan';
+            $action='listheatline';
             $viewpath = 'admin.AdminOne.championship.listdata.heatline';
 
             $get_user = $this->get_user($request);           
@@ -1303,7 +1410,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['kejuaraan'] == 'No' OR $level_user[0]['listheatline'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100));
@@ -1335,6 +1444,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'masterdata';
             $request['url_active'] = 'listatlet';
+            $menu='masterdata';
+            $action='listatlet';
             $viewpath = 'admin.AdminOne.masterdata.listdata.dataatlet';
 
             $get_user = $this->get_user($request);           
@@ -1356,7 +1467,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['masterdata'] == 'No' OR $level_user[0]['listatlet'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100));
@@ -1387,6 +1500,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'masterdata';
             $request['url_active'] = 'listatlet';
+            $menu='listatlet';
+            $action='newatlet';
             $viewpath = 'admin.AdminOne.masterdata.newdata.dataatlet';
 
             $get_user = $this->get_user($request);           
@@ -1408,7 +1523,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listatlet'] == 'No' OR $level_user[0]['newatlet'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
             
             $list_club = $this->get_op_club($request);
 
@@ -1429,7 +1546,9 @@ class SistemController extends Controller
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
             $request['app'] = 'masterdata';
-            $request['url_active'] = 'listclub';
+            $request['url_active'] = 'listatlet';
+            $menu='listatlet';
+            $action='listatlet';
             $viewpath = 'admin.AdminOne.masterdata.editdata.dataatlet';
 
             $get_user = $this->get_user($request);           
@@ -1451,7 +1570,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['masterdata'] == 'No' OR $level_user[0]['listatlet'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $request['code_data'] = $request['d'];
             
@@ -1480,6 +1601,10 @@ class SistemController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $request['app'] = 'masterdata';
+            $request['url_active'] = 'listatlet';
+            $menu='listatlet';
+            $action='exportlistatlet';
 
             $get_user = $this->get_user($request);           
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1500,19 +1625,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['masterdata'] == 'No' OR $level_user[0]['listatlet'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
-            $vd = intval($request->vd ?? 20);
-            $vd = max(1, min($vd, 100));
-            $request['vd'] = $vd;
-            $request['type'] = 'export';
-            
-            $results[] = app('App\Http\Controllers\ApiControllerMasterData')->listatlet($request);  
-            $results = collect($results)->toJson();
-            $results = json_decode($results,true);
-            $results = $results[0]['original'];
-
-            if($results['note'] == 'Tidak ada akses'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
             
             $datetime_now = date('Y-m-d-His');
             $nama_file = "Data-Atlet-".$datetime_now.".xls" ;
@@ -1535,6 +1650,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'masterdata';
             $request['url_active'] = 'listclub';
+            $menu='masterdata';
+            $action='listclub';
             $viewpath = 'admin.AdminOne.masterdata.listdata.dataclub';
 
             $get_user = $this->get_user($request);           
@@ -1556,7 +1673,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['masterdata'] == 'No' OR $level_user[0]['listclub'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100));
@@ -1587,6 +1706,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'masterdata';
             $request['url_active'] = 'listclub';
+            $menu='listclub';
+            $action='newclub';
             $viewpath = 'admin.AdminOne.masterdata.newdata.dataclub';
 
             $get_user = $this->get_user($request);           
@@ -1608,7 +1729,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listclub'] == 'No' OR $level_user[0]['newclub'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}    
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
            return view($viewpath,['url_api' => $url_api,'app' => $request['app'],'url_active' => $request['url_active'],'request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results']]);
         }
@@ -1628,6 +1751,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'masterdata';
             $request['url_active'] = 'listclub';
+            $menu='listclub';
+            $action='editclub';
             $viewpath = 'admin.AdminOne.masterdata.editdata.dataclub';
 
             $get_user = $this->get_user($request);           
@@ -1649,7 +1774,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['masterdata'] == 'No' OR $level_user[0]['listclub'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
             $request['code_data'] = $request['d'];
             
@@ -1675,7 +1802,11 @@ class SistemController extends Controller
             $key_token = session('key_token_renang');
             $load_app = $request->load;
             $request['u'] = $admin_login;
-            $request['token'] = $key_token;
+            $request['token'] = $key_token;            
+            $request['app'] = 'masterdata';
+            $request['url_active'] = 'listclub';
+            $menu='listclub';
+            $action='exportclub';
 
             $get_user = $this->get_user($request);           
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1696,19 +1827,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['masterdata'] == 'No' OR $level_user[0]['listclub'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
-            $vd = intval($request->vd ?? 20);
-            $vd = max(1, min($vd, 100));
-            $request['vd'] = $vd;
-            $request['type'] = 'export';
-            
-            $results[] = app('App\Http\Controllers\ApiControllerMasterData')->listclub($request);  
-            $results = collect($results)->toJson();
-            $results = json_decode($results,true);
-            $results = $results[0]['original'];
-
-            if($results['note'] == 'Tidak ada akses'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
             
             $datetime_now = date('Y-m-d-His');
             $nama_file = "Data-Club-".$datetime_now.".xls" ;
@@ -1730,7 +1851,9 @@ class SistemController extends Controller
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
             $request['app'] = 'masterdata';
-            $request['url_active'] = 'listkategori';
+            $request['url_active'] = 'listkategori'; 
+            $menu='masterdata';
+            $action='listkategori';
             $viewpath = 'admin.AdminOne.masterdata.listdata.datakategori';
 
             $get_user = $this->get_user($request);           
@@ -1752,21 +1875,12 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['masterdata'] == 'No' OR $level_user[0]['listkategori'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
-            // if($request->has('vd')){
-            //     if($request->vd == ''){
-            //         $vd = '20';
-            //     }else{
-            //         $vd = $request->vd;
-            //     }
-            // }else{
-            //     $vd = '20';
-            // }
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
-            // ambil vd dari request, cast, batasi
             $vd = intval($request->vd ?? 20);
-            $vd = max(1, min($vd, 100)); // nilai minimal 1, maksimal 100
+            $vd = max(1, min($vd, 100)); 
             $request['vd'] = $vd;
             
             $results[] = app('App\Http\Controllers\ApiControllerMasterData')->listkategori($request);  
@@ -1794,6 +1908,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'masterdata';
             $request['url_active'] = 'listkategori';
+            $menu='listkategori';
+            $action='newkategori';
             $viewpath = 'admin.AdminOne.masterdata.newdata.datakategori';
 
             $get_user = $this->get_user($request);           
@@ -1815,7 +1931,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listkategori'] == 'No' OR $level_user[0]['newkategori'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}    
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
            return view($viewpath,['url_api' => $url_api,'app' => $request['app'],'url_active' => $request['url_active'],'request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results']]);
         }
@@ -1835,6 +1953,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'masterdata';
             $request['url_active'] = 'listkategori';
+            $menu='listkategori';
+            $action='editkategori';
             $viewpath = 'admin.AdminOne.masterdata.editdata.datakategori';
 
             $get_user = $this->get_user($request);           
@@ -1856,7 +1976,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['masterdata'] == 'No' OR $level_user[0]['listkategori'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
             $request['code_data'] = $request['d'];
             
@@ -1882,7 +2004,11 @@ class SistemController extends Controller
             $key_token = session('key_token_renang');
             $load_app = $request->load;
             $request['u'] = $admin_login;
-            $request['token'] = $key_token;
+            $request['token'] = $key_token; 
+            $request['app'] = 'masterdata';
+            $request['url_active'] = 'listkategori';
+            $menu='listkategori';
+            $action='exportkategori';
 
             $get_user = $this->get_user($request);           
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -1903,19 +2029,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['masterdata'] == 'No' OR $level_user[0]['listkategori'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
-            $vd = intval($request->vd ?? 20);
-            $vd = max(1, min($vd, 100)); // nilai minimal 1, maksimal 100
-            $request['vd'] = $vd;
-            $request['type'] = 'export';
-            
-            $results[] = app('App\Http\Controllers\ApiControllerMasterData')->listkategori($request);  
-            $results = collect($results)->toJson();
-            $results = json_decode($results,true);
-            $results = $results[0]['original'];
-
-            if($results['note'] == 'Tidak ada akses'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
             
             $datetime_now = date('Y-m-d-His');
             $nama_file = "Data-Kategori-".$datetime_now.".xls" ;
@@ -1938,6 +2054,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'masterdata';
             $request['url_active'] = 'listku';
+            $menu='masterdata';
+            $action='listku';
             $viewpath = 'admin.AdminOne.masterdata.listdata.dataku';
 
             $get_user = $this->get_user($request);           
@@ -1959,7 +2077,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['masterdata'] == 'No' OR $level_user[0]['listkategori'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100)); 
@@ -1990,6 +2110,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'masterdata';
             $request['url_active'] = 'listku';
+            $menu='listku';
+            $action='newku';
             $viewpath = 'admin.AdminOne.masterdata.newdata.dataku';
 
             $get_user = $this->get_user($request);           
@@ -2011,7 +2133,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listku'] == 'No' OR $level_user[0]['newku'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}    
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
            return view($viewpath,['url_api' => $url_api,'app' => $request['app'],'url_active' => $request['url_active'],'request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results']]);
         }
@@ -2031,6 +2155,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'masterdata';
             $request['url_active'] = 'listku';
+            $menu='listku';
+            $action='editku';
             $viewpath = 'admin.AdminOne.masterdata.editdata.dataku';
 
             $get_user = $this->get_user($request);           
@@ -2052,7 +2178,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['masterdata'] == 'No' OR $level_user[0]['listku'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
             $request['code_data'] = $request['d'];
             
@@ -2078,7 +2206,11 @@ class SistemController extends Controller
             $key_token = session('key_token_renang');
             $load_app = $request->load;
             $request['u'] = $admin_login;
-            $request['token'] = $key_token;
+            $request['token'] = $key_token;    
+            $request['app'] = 'masterdata';
+            $request['url_active'] = 'listku';
+            $menu='listku';
+            $action='exportku';
 
             $get_user = $this->get_user($request);           
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -2099,253 +2231,13 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['masterdata'] == 'No' OR $level_user[0]['listku'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
-            $vd = intval($request->vd ?? 20);
-            $vd = max(1, min($vd, 100));
-            $request['vd'] = $vd;
-            $request['type'] = 'export';
-            
-            $results[] = app('App\Http\Controllers\ApiControllerMasterData')->listku($request);  
-            $results = collect($results)->toJson();
-            $results = json_decode($results,true);
-            $results = $results[0]['original'];
-
-            if($results['note'] == 'Tidak ada akses'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
             
             $datetime_now = date('Y-m-d-His');
             $nama_file = "Data-Kelompok-Umur-".$datetime_now.".xls" ;
             return Excel::download(new KelompokUmur($request), $nama_file);
-        }
-    }
-
-    // Barang
-    public function listbarang(Request $request)
-    {
-    	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
-    		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
-    	}else{ 
-            date_default_timezone_set('Asia/Jakarta');
-            $url_api =  env('APP_API');
-            $admin_login = session('admin_login_renang');
-            $key_token = session('key_token_renang');
-            $load_app = $request->load;
-            $request['u'] = $admin_login;
-            $request['token'] = $key_token;
-            $request['app'] = 'masterdata';
-            $request['url_active'] = 'listbarang';
-            $viewpath = 'admin.AdminOne.masterdata.listdata.databarang';
-
-            $get_user = $this->get_user($request);           
-            if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
-            $request['data_company'] = $get_user['results']['data_company']; 
-
-            $res_user = $get_user['results'][0]['detailadmin'][0];
-            $res_level_user = $get_user['results'][0]['leveladmin'][0];
-            $nama_admin = substr($res_user['full_name'],0,15);
-            if(strlen($nama_admin) > 15){$nama_admin = $nama_admin."...";}
-            $request['nama_admin'] = $nama_admin;
-
-            $get_setting = $this->get_setting($request);
-            $manual_book =  $get_setting['results']['data_setting']['manual_book'];
-            $request['manual_book'] = $manual_book;
-
-            $list_akses = $this->get_akses($request);
-            $level_user = array();
-            for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
-            array_push($level_user, $access_rights);
-
-            if($level_user[0]['masterdata'] == 'No' OR $level_user[0]['listbarang'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
-
-            if($request->has('vd')){
-                if($request->vd == ''){
-                    $vd = '20';
-                }else{
-                    $vd = $request->vd;
-                }
-            }else{
-                $vd = '20';
-            }
-
-            $request['vd'] = $vd;
-            
-            $results[] = app('App\Http\Controllers\ApiControllerMasterData')->listbarang($request);  
-            $results = collect($results)->toJson();
-            $results = json_decode($results,true);
-            $results = $results[0]['original'];
-
-            if($results['note'] == 'Tidak ada akses'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
-
-            return view($viewpath,['url_api' => $url_api,'app' => $request['app'],'url_active' => $request['url_active'],'request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results'],'count_vd' => $vd,'keysearch' => $request->keysearch,'results' => $results['results']['listdata'],'listdata' => $results['results']]);
-        }
-    }
-
-    public function exportlistbarang(Request $request)
-    {
-    	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
-    		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
-    	}else{ 
-            date_default_timezone_set('Asia/Jakarta');
-            $url_api =  env('APP_API');
-            $admin_login = session('admin_login_renang');
-            $key_token = session('key_token_renang');
-            $load_app = $request->load;
-            $request['u'] = $admin_login;
-            $request['token'] = $key_token;
-
-            $get_user = $this->get_user($request);           
-            if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
-            $request['data_company'] = $get_user['results']['data_company']; 
-
-            $res_user = $get_user['results'][0]['detailadmin'][0];
-            $res_level_user = $get_user['results'][0]['leveladmin'][0];
-            $nama_admin = substr($res_user['full_name'],0,15);
-            if(strlen($nama_admin) > 15){$nama_admin = $nama_admin."...";}
-            $request['nama_admin'] = $nama_admin;
-
-            $get_setting = $this->get_setting($request);
-            $manual_book =  $get_setting['results']['data_setting']['manual_book'];
-            $request['manual_book'] = $manual_book;
-
-            $list_akses = $this->get_akses($request);
-            $level_user = array();
-            for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
-            array_push($level_user, $access_rights);
-
-            if($level_user[0]['masterdata'] == 'No' OR $level_user[0]['listbarang'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
-
-            if($request->has('vd')){
-                if($request->vd == ''){
-                    $vd = '20';
-                }else{
-                    $vd = $request->vd;
-                }
-            }else{
-                $vd = '20';
-            }
-            $request['vd'] = $vd;
-            $request['type'] = 'export';
-            
-            $results[] = app('App\Http\Controllers\ApiControllerMasterData')->listbarang($request);  
-            $results = collect($results)->toJson();
-            $results = json_decode($results,true);
-            $results = $results[0]['original'];
-
-            if($results['note'] == 'Tidak ada akses'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
-            
-            $datetime_now = date('Y-m-d-His');
-            $nama_file = "Data-Barang-".$datetime_now.".xls" ;
-            return Excel::download(new Barang($request), $nama_file);
-        }
-    }
-
-    public function newbarang(Request $request)
-    {
-    	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
-    		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
-    	}else{ 
-            date_default_timezone_set('Asia/Jakarta');
-            $url_api =  env('APP_API');
-            $admin_login = session('admin_login_renang');
-            $key_token = session('key_token_renang');
-            $load_app = $request->load;
-            $request['u'] = $admin_login;
-            $request['token'] = $key_token;
-            $request['app'] = 'masterdata';
-            $request['url_active'] = 'listbarang';
-            $viewpath = 'admin.AdminOne.masterdata/newdata.databarang';
-
-            $get_user = $this->get_user($request);           
-            if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
-            $request['data_company'] = $get_user['results']['data_company'];
-
-            $res_user = $get_user['results'][0]['detailadmin'][0];
-            $res_level_user = $get_user['results'][0]['leveladmin'][0];
-            $nama_admin = substr($res_user['full_name'],0,15);
-            if(strlen($nama_admin) > 15){$nama_admin = $nama_admin."...";}
-            $request['nama_admin'] = $nama_admin;
-
-            $get_setting = $this->get_setting($request);
-            $manual_book =  $get_setting['results']['data_setting']['manual_book'];
-            $request['manual_book'] = $manual_book;
-
-            $list_akses = $this->get_akses($request);
-            $level_user = array();
-            for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
-            array_push($level_user, $access_rights);
-
-            if($level_user[0]['listbarang'] == 'No' OR $level_user[0]['newbarang'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}          
-            
-            $results[] = app('App\Http\Controllers\ApiControllerMasterData')->getgenerate($request);  
-            $results = collect($results)->toJson();
-            $results = json_decode($results,true);
-            $results = $results[0]['original'];
-            
-            $list_satuan = $this->get_op_satuan($request);
-            $list_kategori = $this->get_op_kategori($request);
-            $list_merk = $this->get_op_merk($request);
-            $list_supplier = $this->get_op_supplier($request);
-
-            // return $list_pro;
-
-           return view($viewpath,['url_api' => $url_api,'app' => $request['app'],'url_active' => $request['url_active'],'request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results'],'results' => $results,'list_satuan' => $list_satuan['results'],'list_kategori' => $list_kategori['results'],'list_merk' => $list_merk['results'],'list_supplier' => $list_supplier['results']]);
-        }
-    }
-
-    public function editbarang(Request $request)
-    {
-    	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
-    		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
-    	}else{  
-            date_default_timezone_set('Asia/Jakarta');
-            $url_api =  env('APP_API');
-            $admin_login = session('admin_login_renang');
-            $key_token = session('key_token_renang');
-            $load_app = $request->load;
-            $request['u'] = $admin_login;
-            $request['token'] = $key_token;
-            $request['app'] = 'masterdata';
-            $request['url_active'] = 'listbarang';
-            $viewpath = 'admin.AdminOne.masterdata.editdata.databarang';
-
-            $get_user = $this->get_user($request);           
-            if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
-            $request['data_company'] = $get_user['results']['data_company']; 
-            
-            $res_user = $get_user['results'][0]['detailadmin'][0];
-            $res_level_user = $get_user['results'][0]['leveladmin'][0];
-            $nama_admin = substr($res_user['full_name'],0,15);
-            if(strlen($nama_admin) > 15){$nama_admin = $nama_admin."...";}
-            $request['nama_admin'] = $nama_admin;
-
-            $get_setting = $this->get_setting($request);
-            $manual_book =  $get_setting['results']['data_setting']['manual_book'];
-            $request['manual_book'] = $manual_book;
-
-            $list_akses = $this->get_akses($request);
-            $level_user = array();
-            for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
-            array_push($level_user, $access_rights);
-
-            if($level_user[0]['masterdata'] == 'No' OR $level_user[0]['listbarang'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
-
-            $request['id'] = $request['d'];
-            
-            $get_data[] = app('App\Http\Controllers\ApiControllerMasterData')->viewbarang($request);  
-            $get_data = collect($get_data)->toJson();
-            $get_data = json_decode($get_data,true);
-            $get_data = $get_data[0]['original'];
-
-            if($get_data['note'] == 'Data tidak ditemukan'){return redirect('/admin/dash')->with('error','Data tidak ditemukan');}
-            
-            $list_satuan = $this->get_op_satuan($request);
-            $list_kategori = $this->get_op_kategori($request);
-            $list_merk = $this->get_op_merk($request);
-            $list_supplier = $this->get_op_supplier($request);
-
-            // return $get_data;
-
-           return view($viewpath,['url_api' => $url_api,'app' => $request['app'],'url_active' => $request['url_active'],'request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results'],'results' => $get_data,'list_satuan' => $list_satuan['results'],'list_kategori' => $list_kategori['results'],'list_merk' => $list_merk['results'],'list_supplier' => $list_supplier['results']]);
         }
     }
 
@@ -2362,8 +2254,6 @@ class SistemController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
-            $request['app'] = 'editaccount';
-            $request['url_active'] = 'editaccount';
             $viewpath = 'admin.AdminOne.masterpengguna.editdata.account';
 
             $get_user = $this->get_user($request);           
@@ -2404,6 +2294,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'users';
             $request['url_active'] = 'listusers';
+            $menu='users';
+            $action='listusers';
             $viewpath = 'admin.AdminOne.masterpengguna.listdata.datapengguna';
 
             $get_user = $this->get_user($request);           
@@ -2425,18 +2317,12 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['users'] == 'No' OR $level_user[0]['listusers'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
-            if($request->has('vd')){
-                if($request->vd == ''){
-                    $vd = '20';
-                }else{
-                    $vd = $request->vd;
-                }
-            }else{
-                $vd = '20';
-            }
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
+            $vd = intval($request->vd ?? 20);
+            $vd = max(1, min($vd, 100));
             $request['vd'] = $vd;
             
             $results[] = app('App\Http\Controllers\ApiControllerMasterPengguna')->listusers($request);  
@@ -2464,6 +2350,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'users';
             $request['url_active'] = 'listusers';
+            $menu='listusers';
+            $action='exportusers';
             $viewpath = 'admin.AdminOne.masterpengguna.listdata.datapengguna';
 
             $get_user = $this->get_user($request);           
@@ -2485,27 +2373,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['users'] == 'No' OR $level_user[0]['listusers'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
-            if($request->has('vd')){
-                if($request->vd == ''){
-                    $vd = '20';
-                }else{
-                    $vd = $request->vd;
-                }
-            }else{
-                $vd = '20';
-            }
-
-            $request['vd'] = $vd;
-            $request['type'] = 'export';
-            
-            $results[] = app('App\Http\Controllers\ApiControllerMasterPengguna')->listusers($request);  
-            $results = collect($results)->toJson();
-            $results = json_decode($results,true);
-            $results = $results[0]['original'];
-
-            if($results['note'] == 'Tidak ada akses'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
             
             $datetime_now = date('Y-m-d-His');
             $nama_file = "Data-Pengguna-".$datetime_now.".xls" ;
@@ -2527,6 +2397,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'users';
             $request['url_active'] = 'listusers';
+            $menu='listusers';
+            $action='newusers';
             $viewpath = 'admin.AdminOne.masterpengguna.newdata.datapengguna';
 
             $get_user = $this->get_user($request);           
@@ -2548,7 +2420,11 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listusers'] == 'No' OR $level_user[0]['newusers'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            $menu='listusers';
+            $action='exportusers';
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
             $list_level = $this->get_op_level($request);
 
@@ -2570,6 +2446,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'users';
             $request['url_active'] = 'listusers';
+            $menu='listusers';
+            $action='editusers';
             $viewpath = 'admin.AdminOne.masterpengguna.editdata.datapengguna';
 
             $get_user = $this->get_user($request);           
@@ -2591,7 +2469,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['listusers'] == 'No' OR $level_user[0]['newusers'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
             $list_level = $this->get_op_level($request);
 
@@ -2623,6 +2503,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'users';
             $request['url_active'] = 'levelusers';
+            $menu='users';
+            $action='levelusers';
             $viewpath = 'admin.AdminOne.masterpengguna.listdata.levelpengguna';
 
             $get_user = $this->get_user($request);           
@@ -2645,18 +2527,12 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['users'] == 'No' OR $level_user[0]['levelusers'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
-            if($request->has('vd')){
-                if($request->vd == ''){
-                    $vd = '20';
-                }else{
-                    $vd = $request->vd;
-                }
-            }else{
-                $vd = '20';
-            }
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
+            $vd = intval($request->vd ?? 20);
+            $vd = max(1, min($vd, 100));
             $request['vd'] = $vd;
             
             $results[] = app('App\Http\Controllers\ApiControllerMasterPengguna')->listlevelusers($request);  
@@ -2684,6 +2560,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'users';
             $request['url_active'] = 'levelusers';
+            $menu='levelusers';
+            $action='newlevelusers';
             $viewpath = 'admin.AdminOne.masterpengguna.newdata.levelpengguna';
 
             $get_user = $this->get_user($request);           
@@ -2705,7 +2583,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['levelusers'] == 'No' OR $level_user[0]['newlevelusers'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
             return view($viewpath,['url_api' => $url_api,'app' => $request['app'],'url_active' => $request['url_active'],'request' => $request,'res_user' => $res_user,'level_user' => $level_user[0],'list_akses' => $list_akses['results']]);
         }
@@ -2725,6 +2605,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'users';
             $request['url_active'] = 'levelusers';
+            $menu='levelusers';
+            $action='editlevelusers';
             $viewpath = 'admin.AdminOne.masterpengguna.editdata.levelpengguna';
 
             $get_user = $this->get_user($request);           
@@ -2746,7 +2628,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['users'] == 'No' OR $level_user[0]['levelusers'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
             $list_level = $this->get_op_level($request);
 
@@ -2778,6 +2662,8 @@ class SistemController extends Controller
             $request['token'] = $key_token;
             $request['app'] = 'users';
             $request['url_active'] = 'activityusers';
+            $menu='users';
+            $action='activityusers';
             $viewpath = 'admin.AdminOne.masterpengguna.listdata.aktivitaspengguna';
 
             $get_user = $this->get_user($request);           
@@ -2799,7 +2685,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['users'] == 'No' OR $level_user[0]['activityusers'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
 
             Carbon::setLocale('en');
 
@@ -2812,17 +2700,10 @@ class SistemController extends Controller
                 $datefilterend = Carbon::parse($getsearchdate[1])->format('Y-m-d') . ' 23:59:59';
             }
 
-            if($request->has('vd')){
-                if($request->vd == ''){
-                    $vd = '20';
-                }else{
-                    $vd = $request->vd;
-                }
-            }else{
-                $vd = '20';
-            }
-
+            $vd = intval($request->vd ?? 20);
+            $vd = max(1, min($vd, 100));
             $request['vd'] = $vd;
+
             $request['type'] = 'list';
             $request['searchdate'] = $datefilterstart.'sd'.$datefilterend;   
             
@@ -2849,6 +2730,10 @@ class SistemController extends Controller
             $load_app = $request->load;
             $request['u'] = $admin_login;
             $request['token'] = $key_token;
+            $request['app'] = 'users';
+            $request['url_active'] = 'activityusers';
+            $menu='activityusers';
+            $action='exportactivityusers';
 
             $get_user = $this->get_user($request);           
             if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
@@ -2869,40 +2754,9 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($level_user[0]['users'] == 'No' OR $level_user[0]['activityusers'] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$request['app']] == 'No' OR $level_user[0][$request['url_active']] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
 
-            Carbon::setLocale('en');
-
-            $datefilterstart = Carbon::now()->modify("-30 days")->format('Y-m-d') . ' 00:00:00';
-            $datefilterend = Carbon::now()->modify("0 days")->format('Y-m-d') . ' 23:59:59';
-
-            if($request->searchdate != ''){
-                $getsearchdate = explode ("sd",$request->searchdate);
-                $datefilterstart = Carbon::parse($getsearchdate[0])->format('Y-m-d') . ' 00:00:00';
-                $datefilterend = Carbon::parse($getsearchdate[1])->format('Y-m-d') . ' 23:59:59';
-            }
-
-            if($request->has('vd')){
-                if($request->vd == ''){
-                    $vd = '20';
-                }else{
-                    $vd = $request->vd;
-                }
-            }else{
-                $vd = '20';
-            }
-
-            $request['vd'] = $vd;
-            $request['searchdate'] = $datefilterstart.'sd'.$datefilterend;
-            $request['type'] = 'export';
-            $request['searchdate'] = $datefilterstart.'sd'.$datefilterend;
-            
-            $results[] = app('App\Http\Controllers\ApiControllerMasterPengguna')->activityusers($request);  
-            $results = collect($results)->toJson();
-            $results = json_decode($results,true);
-            $results = $results[0]['original'];
-
-            if($results['note'] == 'Tidak ada akses'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');} 
             
             $datetime_now = date('Y-m-d-His');
             $nama_file = "Aktifitas-Pengguna-".$datetime_now.".xls" ;
@@ -2956,13 +2810,6 @@ class SistemController extends Controller
 
     public function listcompany(Request $request)
     {
-        date_default_timezone_set('Asia/Jakarta');
-        $url_api =  env('APP_API');
-    	$admin_login = session('admin_login_renang');
-    	$key_token = session('key_token_renang');
-        $load_app = $request->load;
-        $request['u'] = $admin_login;
-        $request['token'] = $key_token;
     	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
     		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
     	}else{  
@@ -2996,16 +2843,8 @@ class SistemController extends Controller
             for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
             array_push($level_user, $access_rights);
 
-            if($request->has('vd')){
-                if($request->vd == ''){
-                    $vd = '20';
-                }else{
-                    $vd = $request->vd;
-                }
-            }else{
-                $vd = '20';
-            }
-
+            $vd = intval($request->vd ?? 20);
+            $vd = max(1, min($vd, 100));
             $request['vd'] = $vd;
             
             $results[] = app('App\Http\Controllers\ApiControllerPengaturan')->listcompany($request);  

@@ -16,6 +16,7 @@ class Championship extends Model
         'tanggal_mulai',
         'tanggal_selesai',
         'status_data',
+        'logo',
         'created_at',
         'updated_at'
     ];
@@ -24,7 +25,6 @@ class Championship extends Model
     public $incrementing = false;
     protected $keyType = 'string';    
     
-    // Championship punya banyak Event
     public function event()
     {
         return $this->hasMany(Event::class,'code_kejuaraan', 'code_data');
