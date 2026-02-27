@@ -48,6 +48,7 @@ Route::get('/admin/dash',[\App\Http\Controllers\SistemController::class, 'dash']
 	Route::post('/admin/saveresultlist',[\App\Http\Controllers\ActionController::class, 'saveresultlist']);
 	Route::get('/admin/detailresult',[\App\Http\Controllers\ApiControllerResult::class, 'detailresult']);
 	Route::get('/admin/printresult',[\App\Http\Controllers\SistemController::class, 'printresult']);
+	Route::post('/admin/updatebesttimeupheatline',[\App\Http\Controllers\ActionController::class, 'updatebesttimeupheatline']);
 
 	// Data Pendafataran
 	Route::get('/admin/menuregister',[\App\Http\Controllers\SistemController::class, 'menuregister']);

@@ -13,14 +13,18 @@ return new class extends Migration
     {
         Schema::create('db_heat_lines', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('code_data')->unique();
-            $table->foreignUuid('heat_id')->constrained('heats')->onDelete('cascade');
-            $table->foreignUuid('athlete_id')->constrained('athletes')->onDelete('cascade');
-            $table->integer('line_number');
-            $table->string('best_time')->nullable();
-            $table->string('hasil')->nullable();
+            $table->string('code_data', 100);
+            $table->string('code_heat', 100);
+            $table->string('code_athlete', 100);
+            $table->unsignedSmallInteger('line_number')->nullable(); 
+            $table->string('best_time', 12)->nullable();
+            $table->string('hasil', 12)->nullable();
             $table->integer('ranking')->nullable();
             $table->timestamps();
+
+            $table->index('code_data', 'idx_heatlines_code_data');
+            $table->index('code_heat', 'idx_heatlines_heat');
+            $table->index('code_athlete', 'idx_heatlines_athlete');
         });
     }
 

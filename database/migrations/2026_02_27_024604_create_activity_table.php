@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('db_heats', function (Blueprint $table) {
+        Schema::create('db_activity', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('code_data', 100);
-            $table->string('code_event', 100);
-            $table->unsignedSmallInteger('nomor_seri');
+            $table->string('code_user', 100);
+            $table->string('activity');
+            $table->string('code_company', 100);
             $table->timestamps();
 
-            $table->index('code_data', 'idx_heats_code_data');
-            $table->index('code_event', 'idx_heats_event');
+            $table->index('code_data', 'idx_activity_code_data');
+            $table->index('code_user', 'idx_activity_user');
+            $table->index('code_company', 'idx_activity_company');
         });
     }
 
@@ -28,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('db_heats');
+        Schema::dropIfExists('db_activity');
     }
 };

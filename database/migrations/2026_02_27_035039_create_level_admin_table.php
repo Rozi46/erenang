@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('db_heats', function (Blueprint $table) {
+        Schema::create('db_level_admin', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('code_data', 100);
-            $table->string('code_event', 100);
-            $table->unsignedSmallInteger('nomor_seri');
+            $table->string('level_name', 100);
+            $table->string('data_menu', 100);
+            $table->string('access_rights', 100)->nullable(); 
             $table->timestamps();
 
-            $table->index('code_data', 'idx_heats_code_data');
-            $table->index('code_event', 'idx_heats_event');
+            $table->index('code_data', 'idx_leveladmin_code_data');
         });
     }
 
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('db_heats');
+        Schema::dropIfExists('db_level_admin');
     }
 };

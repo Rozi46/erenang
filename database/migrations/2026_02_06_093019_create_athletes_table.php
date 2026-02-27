@@ -13,15 +13,18 @@ return new class extends Migration
     {
         Schema::create('db_athletes', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('code_data')->unique();
-            $table->string('nis')->unique();
-            $table->string('nama');
-            $table->enum('gender', ['PA', 'PI']);
-            $table->string('tempat_lahir');
-            $table->date('tanggal_lahir');
-            $table->string('foto')->nullable();
-            $table->foreignUuid('club_id')->constrained('clubs')->onDelete('cascade');
+            $table->string('code_data', 100);
+            $table->string('code_club', 100);
+            $table->string('nama', 100);
+            $table->string('nis', 100);
+            $table->enum('gender',['Laki-Laki', 'Perempuan']);
+            $table->string('tempat_lahir', 100);
+            $table->date('tanggal_lahir', 100)->nullable();
+            $table->string('foto', 120)->nullable();
             $table->timestamps();
+
+            $table->index('code_data', 'idx_athlete_code_data');
+            $table->index('code_club', 'idx_athlete_club');
         });
     }
 

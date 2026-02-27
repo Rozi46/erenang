@@ -13,15 +13,21 @@ return new class extends Migration
     {
         Schema::create('db_events', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('kode_event')->unique();
-            $table->string('nama_event');
-            $table->enum('gaya', ['bebas', 'dada', 'punggung', 'kupu-kupu', 'medley']);
+            $table->string('code_data', 100);
+            $table->string('code_event', 100);
+            $table->string('code_gaya',100);
             $table->integer('jarak');
-            $table->string('kategori'); // contoh: KU 1, KU 2, Senior
-            $table->enum('gender', ['PA', 'PI']);
-            $table->date('tanggal_event');
-            $table->foreignUuid('championship_id')->constrained('championships')->onDelete('cascade');
-            $table->timestamps();
+            $table->string('code_kategori', 100);
+            $table->enum('gender', ['Putra', 'Putri']);
+            $table->date('tanggal');
+            $table->string('code_kejuaraan',100);
+            $table->string('status_data',50)->nullable();
+            $table->timestamps();            
+
+            $table->index('code_data', 'idx_events_code_data');
+            $table->index('code_gaya', 'idx_events_gaya');
+            $table->index('code_kategori', 'idx_events_kategori');
+            $table->index('code_kejuaraan', 'idx_events_kejuaraan');
         });
     }
 

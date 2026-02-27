@@ -197,6 +197,52 @@ class ActionController extends Controller
         }
     }
 
+    public function updatebesttimeupheatline(Request $request)
+    {
+    	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
+    		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');
+    	}else{
+            date_default_timezone_set('Asia/Jakarta');
+            $url_api =  env('APP_API');
+            $admin_login = session('admin_login_renang');
+            $key_token = session('key_token_renang');
+            $load_app = $request->load;
+            $request['u'] = $admin_login;
+            $request['token'] = $key_token;
+            $menu='menudatahasilpertandingan';
+            $action='inputresult';
+ 
+            $get_user = $this->get_user($request);         
+            if(!$get_user OR $get_user['status_message'] == 'error'){return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');}
+            $res_user = $get_user['results'][0]['detailadmin'][0];
+            $res_level_user = $get_user['results'][0]['leveladmin'][0];
+            $nama_admin = substr($res_user['full_name'],0,15);
+            if(strlen($nama_admin) > 15){$nama_admin = $nama_admin."...";}
+            $request['nama_admin'] = $nama_admin;
+
+            $list_akses = $this->get_akses($request);
+            $level_user = array();
+            for ($x = 0; $x <= count($res_level_user) - 1; $x++) {$access_rights[''.$res_level_user[$x]['data_menu'].''] = $res_level_user[$x]['access_rights'];}
+            array_push($level_user, $access_rights);
+
+            if($level_user[0][$menu] == 'No' OR $level_user[0][$action] == 'No'){return redirect('/admin/dash')->with('error','Tidak ada akses');}
+
+            $this->validate($request, [
+                'besttime_up'          => ['required','regex:/^\d{2}:\d{2}\.\d{2}$/']
+            ]);
+
+            $response[] = app('App\Http\Controllers\ApiControllerResult')->updatebesttimeupheatline($request);  
+            $response = collect($response)->toJson();
+            $response = json_decode($response,true);
+            $response = $response[0]['original'];
+            $status = $response['status_message'];
+            $note = $response['note'];
+            $code_data = $response['code_data'];
+
+            return response()->json(['status_message' => $status,'note' => $note,'code_data' => $code_data]);
+        }
+    }
+
     // Pendaftaran
     public function saveregister(Request $request)
     {

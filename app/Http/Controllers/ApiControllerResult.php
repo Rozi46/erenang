@@ -662,4 +662,66 @@ class ApiControllerResult extends Controller
             }
         }
     }
+
+    public function updatebesttimeupheatline(Request $request)
+    {
+        date_default_timezone_set('Asia/Jakarta');
+        $object = [];
+        $viewadmin = User::where('id', $request->u)->where('key_token', $request->token)->first();
+        if(!$viewadmin){ 
+            return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan saat proses data']);
+        }else{
+            $level_menu = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','menudatahasilpertandingan')->first();
+            $level_action = LevelAdmin::where('code_data', $viewadmin->level)->where('data_menu','=','inputresult')->first();
+            
+            if($level_menu->access_rights == 'No' OR $level_action->access_rights == 'No'){
+                return response()->json(['status_message' => 'error','note' => 'Tidak ada akses','results' => $object]);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'besttime_up' => ['required','regex:/^\d{2}:\d{2}\.\d{2}$/']
+            ]);
+
+            if($validator->fails()){
+                return response()->json(['status_message' => 'error','note' => $validator->errors()]);
+            }
+
+            try {
+                DB::beginTransaction();                
+
+                // Validasi minimal
+                if (!$request->code_data) {
+                    throw new \Exception('Data tidak ditemukan');
+                }
+
+                // Update best time
+                $updated = HeatLine::where('code_data', $request->code_data)
+                    ->update(['best_time' => $request->besttime_up]);
+
+                if (!$updated) {
+                    throw new \Exception('Data heatline tidak ditemukan atau gagal update');
+                }
+
+                
+                $newCodeData = $request->code_data;
+
+                $otpAct = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 1);
+                $newCodeData_activity = ltrim(Carbon::now()->format('Ymdhis') . $otpAct, '0');
+
+                Activity::create([
+                    'id'          => Str::uuid(),
+                    'code_data'   => $newCodeData_activity,
+                    'code_user'   => $viewadmin->code_data ?? null,
+                    'activity'    => 'Simpan data best time pada seri lomba [' .  $request->code_data . ']',
+                    'code_company'=> $viewadmin->code_company ?? null,
+                ]);
+
+                DB::commit();
+                return response()->json(['status_message' => 'success','note' => 'Data berhasil disimpan','results' => $object,'code_data' => $newCodeData], 200);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['status_message' => 'error','note' => 'Terjadi kesalahan: ' . $e->getMessage(),'results' => $object,'code_data' => $object], 500);
+            }
+        }
+    }
 }

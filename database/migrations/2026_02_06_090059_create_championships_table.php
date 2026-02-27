@@ -13,11 +13,15 @@ return new class extends Migration
     {
         Schema::create('db_championships', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('nama_kejuaraan');
+            $table->string('code_data', 100);
+            $table->string('nama_kejuaraan', 100);
             $table->string('lokasi');
+            $table->unsignedSmallInteger('jumlah_line')->nullable();  
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai');
             $table->timestamps();
+
+            $table->index('code_data', 'idx_championships_code_data');
         });
     }
 

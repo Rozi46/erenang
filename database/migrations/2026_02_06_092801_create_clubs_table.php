@@ -13,12 +13,14 @@ return new class extends Migration
     {
         Schema::create('db_clubs', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('code_data')->unique();
-            $table->string('nama_club');
-            $table->string('kota_asal');
-            $table->string('kontak')->nullable();
-            $table->string('logo')->nullable();
+            $table->string('code_data', 100);
+            $table->string('nama_club', 100);
+            $table->string('kota_asal', 100);
+            $table->string('kontak', 20)->nullable();
+            $table->string('logo', 120)->nullable();
             $table->timestamps();
+
+            $table->index('code_data', 'idx_clubs_code_data');
         });
     }
 
