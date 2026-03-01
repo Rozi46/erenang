@@ -189,14 +189,50 @@ class ApiControllerRegister extends Controller
             $vd = intval($request->vd ?? 20);
             $vd = max(1, min($vd, 100));
             
-            $results['listdata'] = Registrasi::where(function($query) use ($request) {
-                $query->whereRaw('code_data ILIKE ?', ["%{$request->keysearch}%"])
-                ->orWhereRaw('code_athlete ILIKE ?', ["%{$request->keysearch}%"])
-                ->orWhereRaw('code_event::text ILIKE ?', ["%{$request->keysearch}%"])  // bertipe JSON
-                ->orWhereRaw('status ILIKE ?', ["%{$request->keysearch}%"]);
-            })
-            ->orderByDesc('created_at')
-            ->paginate($vd ?? 20);
+            // $results['listdata'] = Registrasi::where(function($query) use ($request) {
+            //     $query->whereRaw('code_data ILIKE ?', ["%{$request->keysearch}%"])
+            //     ->orWhereRaw('code_athlete ILIKE ?', ["%{$request->keysearch}%"])
+            //     ->orWhereRaw('code_event::text ILIKE ?', ["%{$request->keysearch}%"])  // bertipe JSON
+            //     ->orWhereRaw('status ILIKE ?', ["%{$request->keysearch}%"]);
+            // })
+            // ->orderByDesc('created_at')
+            // ->paginate($vd ?? 20);
+
+            $results['listdata'] = Registrasi::with([
+                    'championship',
+                    'atlet.club',
+                    'event.kelompokUmur'
+                ])
+                ->when($request->keysearch, function ($query) use ($request) {
+                    $s = $request->keysearch;
+                    $query->where(function ($q) use ($s) {
+                        // kolom registrasi
+                        $q->where('code_data', 'ILIKE', "%{$s}%")
+                        ->orWhere('status', 'ILIKE', "%{$s}%");
+                        // atlet
+                        $q->orWhereHas('atlet', function ($qa) use ($s) {
+                            $qa->where('nama', 'ILIKE', "%{$s}%")
+                            ->orWhereHas('club', function ($qac) use ($s) {
+                                $qac->where('nama_club', 'ILIKE', "%{$s}%")
+                                    ->orWhere('code_data', 'ILIKE', "%{$s}%");
+                            });
+                        });
+                        // kejuaraan
+                        $q->orWhereHas('championship', function ($qc) use ($s) {
+                            $qc->where('nama_kejuaraan', 'ILIKE', "%{$s}%");
+                        });
+                        // event
+                        $q->orWhereHas('event', function ($qe) use ($s) {
+                            $qe->where('code_event', 'ILIKE', "%{$s}%")
+                            ->orWhereHas('kelompokUmur', function ($qk) use ($s) {
+                                $qk->where('nama_kelompok', 'ILIKE', "%{$s}%")
+                                    ->orWhere('code_kelompok', 'ILIKE', "%{$s}%");
+                            });
+                        });
+                    });
+                })
+                ->orderByDesc('created_at')
+                ->paginate($vd ?? 20);
 
             $count_used = 0;
             foreach($results['listdata'] as $key => $data){
@@ -215,6 +251,130 @@ class ApiControllerRegister extends Controller
                         ->whereIn('code_data', $eventCodes)
                         ->get();
             }
+
+
+            // $results['listdata'] = Registrasi::with([
+            //         'championship',
+            //         'atlet.club',
+            //         'event.kelompokUmur'
+            //     ])
+            //     ->when($request->keysearch, function ($query) use ($request) {
+
+            //         $s = $request->keysearch;
+
+            //         $query->where(function ($q) use ($s) {
+
+            //             // kolom registrasi
+            //             $q->where('code_data', 'ILIKE', "%{$s}%")
+            //             ->orWhere('status', 'ILIKE', "%{$s}%");
+
+            //             // atlet
+            //             $q->orWhereHas('atlet', function ($qa) use ($s) {
+            //                 $qa->where('nama', 'ILIKE', "%{$s}%");
+            //             });
+
+            //             // kejuaraan
+            //             $q->orWhereHas('championship', function ($qc) use ($s) {
+            //                 $qc->where('nama_kejuaraan', 'ILIKE', "%{$s}%");
+            //             });
+
+            //             // event
+            //             $q->orWhereHas('event', function ($qe) use ($s) {
+            //                 $qe->where('code_event', 'ILIKE', "%{$s}%")
+            //                 ->orWhereHas('kelompokUmur', function ($qk) use ($s) {
+            //                     $qk->where('nama_kelompok', 'ILIKE', "%{$s}%")
+            //                         ->orWhere('code_kelompok', 'ILIKE', "%{$s}%");
+            //                 });
+            //             });
+
+            //         });
+            //     })
+            //     ->orderByDesc('created_at')
+            //     ->paginate($vd ?? 20);
+
+
+            //     foreach ($results['listdata'] as $data) {
+            //         $results['count_used'][$data->code_data] =
+            //             $data->status === 'pending' ? 0 : 1;
+
+            //         $results['detail_champion'][$data->code_data] =
+            //             $data->championship;
+
+            //         $results['detail_atlet'][$data->code_data] =
+            //             $data->atlet;
+
+            //         $results['detail_club'][$data->code_data] =
+            //             optional($data->atlet)->club;
+
+            //         $eventCodes = is_array($data->code_event)
+            //             ? $data->code_event
+            //             : json_decode($data->code_event, true);
+
+            //         $results['detail_event'][$data->code_data] =
+            //             $data->event()
+            //                 ->with('kelompokUmur')
+            //                 ->whereIn('code_data', $eventCodes ?? [])
+            //                 ->get();
+            //     }
+
+
+// $results['listdata'] = Registrasi::with([
+//         'championship',
+//         'atlet.club',
+//         'event.kelompokUmur'
+//     ])
+//     ->when($request->keysearch, function ($query) use ($request) {
+
+//         $s = $request->keysearch;
+
+//         $query->where(function ($q) use ($s) {
+
+//             $q->where('code_data', 'ILIKE', "%{$s}%")
+//               ->orWhere('status', 'ILIKE', "%{$s}%")
+
+//               ->orWhereHas('atlet', function ($qa) use ($s) {
+//                   $qa->where('nama', 'ILIKE', "%{$s}%");
+//               })
+
+//               ->orWhereHas('championship', function ($qc) use ($s) {
+//                   $qc->where('nama_kejuaraan', 'ILIKE', "%{$s}%");
+//               })
+
+//               ->orWhereHas('event', function ($qe) use ($s) {
+//                   $qe->where('code_event', 'ILIKE', "%{$s}%")
+//                      ->orWhereHas('kelompokUmur', function ($qk) use ($s) {
+//                          $qk->where('nama_kelompok', 'ILIKE', "%{$s}%")
+//                             ->orWhere('code_kelompok', 'ILIKE', "%{$s}%");
+//                      });
+//               });
+
+//         });
+//     })
+//     ->orderByDesc('created_at')
+//     ->paginate($vd ?? 20);
+
+
+// foreach ($results['listdata'] as $data) {
+
+//     $results['count_used'][$data->code_data] =
+//         $data->status === 'pending' ? 0 : 1;
+
+//     $results['detail_champion'][$data->code_data] =
+//         $data->championship;
+
+//     $results['detail_atlet'][$data->code_data] =
+//         $data->atlet;
+
+//     $results['detail_club'][$data->code_data] =
+//         optional($data->atlet)->club;
+
+//     // ✅ FIX EVENT (FK tunggal)
+//     $results['detail_event'][$data->code_data] =
+//         $data->event
+//             ? collect([$data->event])
+//             : collect();
+// }
+
                 
             return response()->json(['status_message' => 'success','note' => 'Proses data berhasil','count_all_data' => $results['listdata']->total(),'count_view_data' => $vd,'keysearch' => $request->keysearch,'results' => $results]);
         } 

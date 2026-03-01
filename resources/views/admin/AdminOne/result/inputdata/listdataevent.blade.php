@@ -15,12 +15,13 @@
         <td style="text-align:center;">
             <input 
                 type="text" 
+                class="input-hasil"
                 name="new_hasil_{{$id}}" 
                 value="{{$view_data['hasil']}}" 
                 style="width: 95px; text-align:center;" 
-                onkeypress="return goodchars(event,'0123456789:.',this)"
-            >
-        </td>
+                placeholder="00:00.00"
+                maxlength="8"            >
+        </td>     
         <td style="text-align:center;">Foto Hasil</td>
         <td style="text-align:center;">{{$view_data['ranking']}}</td>
         <td style="text-align:center;">Point</td>           
@@ -29,6 +30,18 @@
     <script type="text/javascript">
         $(document).ready(function(){
             $('.bg_act_page_main button').prop({disabled:false});
+            
+        /* FORMAT INPUT WAKTU */
+        $(document).on('input','.input-hasil',function(e){
+            let value = e.target.value.replace(/\D/g,'').substring(0,6);
+
+            let formatted = '';
+            if(value.length>0) formatted = value.substring(0,2);
+            if(value.length>=3) formatted += ':'+value.substring(2,4);
+            if(value.length>=5) formatted += '.'+value.substring(4,6);
+
+            e.target.value = formatted;
+        });
 
 
 

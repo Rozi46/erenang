@@ -736,7 +736,7 @@ class SistemController extends Controller
     }
 
     // Pendafataram
-    public function menuregister(Request $request)
+    public function inputregister(Request $request)
     {
     	if(!session()->has('key_token_renang') || !session()->has('admin_login_renang')){
     		return redirect('/admin/logout')->with('error','Terjadi kesalahan!!! silahkan hubungi kami');

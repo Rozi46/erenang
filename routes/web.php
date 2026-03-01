@@ -51,7 +51,8 @@ Route::get('/admin/dash',[\App\Http\Controllers\SistemController::class, 'dash']
 	Route::post('/admin/updatebesttimeupheatline',[\App\Http\Controllers\ActionController::class, 'updatebesttimeupheatline']);
 
 	// Data Pendafataran
-	Route::get('/admin/menuregister',[\App\Http\Controllers\SistemController::class, 'menuregister']);
+	Route::get('/admin/menuregister',[\App\Http\Controllers\SistemController::class, 'histroryregister']);	
+	Route::get('/admin/inputregister',[\App\Http\Controllers\SistemController::class, 'inputregister']);
 	Route::get('/admin/getatlete',[\App\Http\Controllers\SistemController::class, 'getopatlete']);
 	Route::get('/admin/getevent',[\App\Http\Controllers\SistemController::class, 'getopevent']);
 	Route::post('/admin/saveregister',[\App\Http\Controllers\ActionController::class, 'saveregister']);

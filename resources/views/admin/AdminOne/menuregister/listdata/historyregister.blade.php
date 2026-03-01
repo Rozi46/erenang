@@ -17,7 +17,7 @@
 								<div class="row">
 									<div class="col-xl-12 col_act_page_main text-left">
 										<button type="button" class="btn btn-default back" onclick="BackPage()"><i class="fa fa-chevron-left"></i> Kembali</button>
-										@if($level_user['inputregister'] == 'Yes')<a load="true" href="/admin/menuregister"><button type="button" class="btn btn-primary">Input Pendaftaran</button></a>@endif
+										@if($level_user['inputregister'] == 'Yes')<a load="true" href="/admin/inputregister"><button type="button" class="btn btn-primary">Input Pendaftaran</button></a>@endif
 										
 										@if($level_user['exportregister'] == 'Yes')<button type="button" class="btn btn-info back" onclick="exportdata('register')"><i class="fa fa-download"></i> Export Data</button>@endif
 									</div>
